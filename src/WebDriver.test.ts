@@ -7,10 +7,12 @@ jest.mock("node-fetch");
 describe("WebDriver", () => {
   let driver: WebDriver;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     driver = new WebDriver({
       remoteUrl: "remoteUrl"
     });
+
+    await driver.newSession();
   });
 
   afterEach(() => {
@@ -18,6 +20,10 @@ describe("WebDriver", () => {
   });
 
   describe("session", () => {
+    beforeEach(() => {
+      driver.deleteSession();
+    });
+
     it("should not have a session id defined", () => {
       expect(driver.sessionId).not.toBeDefined();
     });
@@ -55,8 +61,6 @@ describe("WebDriver", () => {
       });
 
       (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-      await driver.newSession();
     });
 
     it("should make request to webdriver", async () => {
@@ -86,8 +90,6 @@ describe("WebDriver", () => {
       });
 
       (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-      await driver.newSession();
     });
 
     it("should make request to webdriver", async () => {
@@ -121,8 +123,6 @@ describe("WebDriver", () => {
       });
 
       (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-      await driver.newSession();
     });
 
     it("should make request to webdriver", async () => {
@@ -152,8 +152,6 @@ describe("WebDriver", () => {
       });
 
       (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-      await driver.newSession();
     });
 
     it("should make request to webdriver", async () => {
