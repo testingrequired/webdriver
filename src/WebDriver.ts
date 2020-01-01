@@ -1,9 +1,10 @@
+import fetch from "node-fetch";
 import { By } from "./By";
 
 export default class WebDriver {
   private _sessionId?: string;
 
-  constructor() {}
+  constructor(private options: WebdriverOptions = {}) {}
 
   get sessionId() {
     return this._sessionId;
@@ -18,51 +19,72 @@ export default class WebDriver {
   }
 
   commandUrl(commandPath: string): string {
-    return `/session/${this.sessionId}${commandPath}`;
+    return `${this.options.remoteUrl}/session/${this.sessionId}${commandPath}`;
   }
 
-  async command<T>(url: string, verb: string, body: any): Promise<any> {}
+  async command<T>(command: string, method: string, body: any): Promise<T> {
+    const url = this.commandUrl(command);
+    const res = await fetch(url, { method, body: JSON.stringify(body) });
+
+    const data: T = await res.json();
+
+    return data;
+  }
 
   async findElement(by: By): Promise<string> {
-    const elementId: string = await this.command<string>(
-      this.commandUrl("/element"),
+    const result = await this.command<FindElementResult>(
+      "/element",
       "POST",
       by
     );
 
-    return elementId;
+    debugger;
+
+    return result.value.ELEMENT;
   }
 
   async findElementFromElement(fromElementId: string, by: By): Promise<string> {
-    const elementId: string = await this.command<string>(
-      this.commandUrl(`/element/${fromElementId}/element`),
+    const result = await this.command<FindElementResult>(
+      `/element/${fromElementId}/element`,
       "POST",
       by
     );
 
-    return elementId;
+    return result.value.ELEMENT;
   }
 
   async findElements(by: By): Promise<Array<string>> {
-    const elementIds: Array<string> = await this.command<Array<string>>(
-      this.commandUrl("/elements"),
+    const result = await this.command<FindElementsResult>(
+      "/elements",
       "POST",
       by
     );
 
-    return elementIds;
+    return result.value.map(v => v.ELEMENT);
   }
 
   async findElementsFromElement(
     by: By,
     fromElementId: string
   ): Promise<Array<string>> {
-    const elementIds: Array<string> = await this.command<Array<string>>(
-      this.commandUrl(`/element/${fromElementId}/elements`),
+    const result = await this.command<FindElementsResult>(
+      `/element/${fromElementId}/elements`,
       "POST",
       by
     );
 
-    return elementIds;
+    return result.value.map(v => v.ELEMENT);
   }
+}
+
+interface WebdriverOptions {
+  remoteUrl?: string;
+}
+
+interface FindElementResult {
+  value: { ELEMENT: string };
+}
+
+interface FindElementsResult {
+  value: Array<{ ELEMENT: string }>;
 }
