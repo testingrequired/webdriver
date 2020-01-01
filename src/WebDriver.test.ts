@@ -172,6 +172,18 @@ describe("WebDriver", () => {
       ).toStrictEqual(expectedElementIds);
     });
   });
+
+  describe("url", () => {
+    const expectedUrl = "expectedUrl";
+    it("should make request to webdriver", async () => {
+      await driver.url(expectedUrl);
+
+      expect(fetch).toBeCalledWith("remoteUrl/session//url", {
+        body: `{"url":"${expectedUrl}"}`,
+        method: "POST"
+      });
+    });
+  });
 });
 
 function mockJsonResponse(body: any) {

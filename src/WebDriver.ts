@@ -75,6 +75,10 @@ export default class WebDriver {
 
     return result.value.map(v => v.ELEMENT);
   }
+
+  async url(url: string) {
+    await this.command<UrlResult>("/url", "POST", { url });
+  }
 }
 
 interface WebdriverOptions {
@@ -87,4 +91,8 @@ interface FindElementResult {
 
 interface FindElementsResult {
   value: Array<{ ELEMENT: string }>;
+}
+
+interface UrlResult {
+  data: string;
 }
