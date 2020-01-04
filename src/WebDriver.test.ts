@@ -27,8 +27,8 @@ describe("WebDriver", () => {
   });
 
   describe("session", () => {
-    beforeEach(() => {
-      driver.deleteSession();
+    beforeEach(async () => {
+      await driver.deleteSession();
     });
 
     it("should not have a session id defined", () => {
@@ -45,12 +45,18 @@ describe("WebDriver", () => {
       });
 
       describe("with deleted session", () => {
-        beforeEach(() => {
-          driver.deleteSession();
+        beforeEach(async () => {
+          await driver.deleteSession();
         });
 
         it("should not have a session id defined", () => {
           expect(driver.sessionId).not.toBeDefined();
+        });
+
+        it("should make request to webdriver", () => {
+          expect(fetch).toBeCalledWith("remoteUrl/session/expectedSessionId", {
+            method: "DELETE"
+          });
         });
       });
     });

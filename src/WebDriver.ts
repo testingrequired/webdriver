@@ -34,10 +34,15 @@ export default class WebDriver {
   }
 
   async deleteSession() {
+    await this.command<NewSessionResult>(
+      `/session/${this.sessionId}`,
+      "DELETE"
+    );
+
     delete this._sessionId;
   }
 
-  async command<T>(command: string, method: string, body: any): Promise<T> {
+  async command<T>(command: string, method: string, body?: any): Promise<T> {
     const url = `${this.options.remoteUrl}${command}`;
     const res = await fetch(url, { method, body: JSON.stringify(body) });
 
