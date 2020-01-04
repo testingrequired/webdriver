@@ -104,10 +104,12 @@ export default class WebDriver {
   }
 
   async elementText(elementId: string) {
-    return await this.sessionCommand<string>(
+    const result = await this.sessionCommand<GetElementTextResult>(
       `/element/${elementId}/text`,
       "GET"
     );
+
+    return result.value;
   }
 
   async url(url: string) {
@@ -125,6 +127,10 @@ interface FindElementResult {
 
 interface FindElementsResult {
   value: Array<{ ELEMENT: string }>;
+}
+
+interface GetElementTextResult {
+  value: string;
 }
 
 interface NewSessionResult {

@@ -23,7 +23,7 @@ describe("WebDriver", () => {
   });
 
   afterEach(() => {
-    jest.resetModules();
+    jest.clearAllMocks();
   });
 
   describe("session", () => {
@@ -192,6 +192,40 @@ describe("WebDriver", () => {
         expect(
           await driver.findElementsFromElement(by, fromElementId)
         ).toStrictEqual(expectedElementIds);
+      });
+    });
+
+    describe("element text", () => {
+      const expectedElementId = "expectedElementId";
+      const expectedText = "expectedText";
+
+      beforeEach(async () => {
+        const response = mockJsonResponse({
+          value: { ELEMENT: expectedElementId }
+        });
+
+        (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+          response
+        );
+
+        const response2 = mockJsonResponse({ value: expectedText });
+
+        (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+          response2
+        );
+      });
+
+      it("should make request to webdriver", async () => {
+        const element = await driver.elementText(expectedElementId);
+
+        element && driver.elementText(element);
+
+        expect(fetch).toBeCalledWith(
+          "remoteUrl/session/expectedSessionId/element/expectedElementId/text",
+          {
+            method: "GET"
+          }
+        );
       });
     });
   });
