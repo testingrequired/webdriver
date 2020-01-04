@@ -9,9 +9,10 @@ const { Browser } = require("../lib");
 
     const header = await browser.$("html");
 
-    await browser.driver.executeScriptSync(function alertTest() {
-      alert("TEST");
-    });
+    await browser.driver.executeScriptSync(
+      "console.log(`Hello ${arguments[0]}`)",
+      "World"
+    );
 
     const header2 = await browser.$x("//html");
 
