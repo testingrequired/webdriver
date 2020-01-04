@@ -1,5 +1,20 @@
 const assert = require("assert");
-const { Browser, sleep } = require("../lib");
+const { Browser, sleep, WebElement } = require("../lib");
+
+class LoginForm extends WebElement {
+  get username() {
+    return this.$("#username");
+  }
+
+  get password() {
+    return this.$("#password");
+  }
+
+  async fill(username, password) {
+    await (await this.username).sendKeys(username);
+    await (await this.password).sendKeys(password);
+  }
+}
 
 (async () => {
   const remoteUrl = "http://localhost:4444/wd/hub";
@@ -23,6 +38,11 @@ const { Browser, sleep } = require("../lib");
 
     await sleep(5000);
 
-    browser.$("#loginForm");
+    /**
+     * @type {LoginForm}
+     */
+    const loginForm = await browser.$("#loginForm", LoginForm);
+
+    await loginForm.fill("testUser", "password");
   });
 })();
