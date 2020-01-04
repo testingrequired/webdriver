@@ -13,9 +13,13 @@ const { Browser, By } = require("../lib");
 
     await browser.go("https://www.exampletest.app/");
 
-    const header = await browser.findElement(new By("css selector", "html"));
+    const header = await browser.$("html");
 
     console.log(header.elementId);
+
+    const header2 = await browser.$x("//html");
+
+    console.log(header2.elementId);
   } finally {
     await browser.close();
 

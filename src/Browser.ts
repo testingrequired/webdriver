@@ -11,10 +11,13 @@ export default class Browser {
   }
 
   async findElement(by: By, WebElementClass = WebElement) {
-    debugger;
     const elementId = await this.driver.findElement(by);
 
     return new WebElementClass(this, by, elementId);
+  }
+
+  async $(selector: string, WebElementClass = WebElement) {
+    return this.findElement(new By("css selector", selector), WebElementClass);
   }
 
   async findElementFromElement(
@@ -38,6 +41,10 @@ export default class Browser {
     );
   }
 
+  async $$(selector: string, WebElementClass = WebElement) {
+    return this.findElements(new By("css selector", selector), WebElementClass);
+  }
+
   async findElementsFromElement(
     fromElementId: string,
     by: By,
@@ -51,6 +58,10 @@ export default class Browser {
     return elementIds.map(
       elementId => new WebElementClass(this, by, elementId)
     );
+  }
+
+  async $x(selector: string, WebElementClass = WebElement) {
+    return this.findElement(new By("xpath", selector), WebElementClass);
   }
 
   async elementText(element: WebElement) {
