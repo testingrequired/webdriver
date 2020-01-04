@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import { By } from "./By";
+import Capabilities from "./Capabilities";
 
 export default class WebDriver {
   private _sessionId?: string;
@@ -11,40 +12,56 @@ export default class WebDriver {
   }
 
   async newSession() {
-    this._sessionId = "";
+    const result = await this.command<NewSessionResult>("/session", "POST", {
+      desiredCapabilities: this.options.desiredCapabilities
+    });
+
+    this._sessionId = result.sessionId;
+
+    return result;
   }
 
   async deleteSession() {
     delete this._sessionId;
   }
 
-  commandUrl(commandPath: string): string {
-    return `${this.options.remoteUrl}/session/${this.sessionId}${commandPath}`;
-  }
-
   async command<T>(command: string, method: string, body: any): Promise<T> {
-    const url = this.commandUrl(command);
+    const url = `${this.options.remoteUrl}${command}`;
     const res = await fetch(url, { method, body: JSON.stringify(body) });
+
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
 
     const data: T = await res.json();
 
     return data;
   }
 
+  async sessionCommand<T>(
+    command: string,
+    method: string,
+    body: any
+  ): Promise<T> {
+    return await this.command(
+      `/session/${this.sessionId}${command}`,
+      method,
+      body
+    );
+  }
+
   async findElement(by: By): Promise<string> {
-    const result = await this.command<FindElementResult>(
+    const result = await this.sessionCommand<FindElementResult>(
       "/element",
       "POST",
       by
     );
 
-    debugger;
-
     return result.value.ELEMENT;
   }
 
   async findElementFromElement(fromElementId: string, by: By): Promise<string> {
-    const result = await this.command<FindElementResult>(
+    const result = await this.sessionCommand<FindElementResult>(
       `/element/${fromElementId}/element`,
       "POST",
       by
@@ -54,7 +71,7 @@ export default class WebDriver {
   }
 
   async findElements(by: By): Promise<Array<string>> {
-    const result = await this.command<FindElementsResult>(
+    const result = await this.sessionCommand<FindElementsResult>(
       "/elements",
       "POST",
       by
@@ -67,7 +84,7 @@ export default class WebDriver {
     by: By,
     fromElementId: string
   ): Promise<Array<string>> {
-    const result = await this.command<FindElementsResult>(
+    const result = await this.sessionCommand<FindElementsResult>(
       `/element/${fromElementId}/elements`,
       "POST",
       by
@@ -77,12 +94,13 @@ export default class WebDriver {
   }
 
   async url(url: string) {
-    await this.command<UrlResult>("/url", "POST", { url });
+    await this.sessionCommand<DataResult>("/url", "POST", { url });
   }
 }
 
 interface WebdriverOptions {
   remoteUrl?: string;
+  desiredCapabilities?: any;
 }
 
 interface FindElementResult {
@@ -93,6 +111,11 @@ interface FindElementsResult {
   value: Array<{ ELEMENT: string }>;
 }
 
-interface UrlResult {
+interface DataResult {
   data: string;
+}
+
+interface NewSessionResult {
+  sessionId: string;
+  capabilities: Capabilities;
 }

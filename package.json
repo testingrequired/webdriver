@@ -15,13 +15,14 @@
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "precli": "npm run build",
-    "cli": "node -r esm ./bin/testframe",
+    "prestart": "npm run build",
+    "start": "node -r esm ./bin/cli",
     "prepublishOnly": "npm run verify && npm run build",
     "pack-preview": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz",
     "test": "jest",
-    "verify": "npm run test && npm run cli",
-    "codecov": "codecov"
+    "verify": "npm run test && npm start",
+    "codecov": "codecov",
+    "selenium": "selenium-standalone"
   },
   "repository": {
     "type": "git",
@@ -56,6 +57,7 @@
     "@babel/runtime": "^7.7.6",
     "esm": "^3.2.25",
     "node-fetch": "^2.6.0",
+    "selenium-standalone": "^6.17.0",
     "yargs": "^15.0.2"
   }
 }
