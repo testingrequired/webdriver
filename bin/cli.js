@@ -1,4 +1,4 @@
-const { WebDriver } = require("../lib");
+const { WebDriver, Browser } = require("../lib");
 
 (async () => {
   const driver = new WebDriver({
@@ -18,9 +18,11 @@ const { WebDriver } = require("../lib");
     }
   });
 
-  await driver.newSession();
+  const browser = new Browser(driver);
 
-  await driver.url("https://www.google.com/");
+  await browser.newSession();
 
-  await driver.deleteSession();
+  await browser.url("https://www.google.com/");
+
+  await browser.deleteSession();
 })();
