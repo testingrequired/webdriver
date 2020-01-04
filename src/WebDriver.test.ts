@@ -184,6 +184,16 @@ describe("WebDriver", () => {
       });
     });
   });
+
+  describe("closeWindow", () => {
+    it("should make request to webdriver", async () => {
+      await driver.closeWindow();
+
+      expect(fetch).toBeCalledWith("remoteUrl/session//window", {
+        method: "DELETE"
+      });
+    });
+  });
 });
 
 function mockJsonResponse(body: any) {

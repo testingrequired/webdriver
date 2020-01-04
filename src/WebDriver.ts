@@ -38,10 +38,10 @@ export default class WebDriver {
     return data;
   }
 
-  async sessionCommand<T>(
+  async sessionCommand<T = void>(
     command: string,
     method: string,
-    body: any
+    body?: any
   ): Promise<T> {
     return await this.command(
       `/session/${this.sessionId}${command}`,
@@ -94,7 +94,11 @@ export default class WebDriver {
   }
 
   async url(url: string) {
-    await this.sessionCommand<DataResult>("/url", "POST", { url });
+    await this.sessionCommand("/url", "POST", { url });
+  }
+
+  async closeWindow() {
+    await this.sessionCommand("/window", "DELETE");
   }
 }
 
@@ -109,10 +113,6 @@ interface FindElementResult {
 
 interface FindElementsResult {
   value: Array<{ ELEMENT: string }>;
-}
-
-interface DataResult {
-  data: string;
 }
 
 interface NewSessionResult {

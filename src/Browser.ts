@@ -64,4 +64,8 @@ export default class Browser {
   async go(url: string) {
     await this.driver.url(url);
   }
+
+  async close() {
+    await this.driver.closeWindow();
+  }
 }
