@@ -11,6 +11,7 @@ export default class Browser {
   }
 
   async findElement(by: By, WebElementClass = WebElement) {
+    debugger;
     const elementId = await this.driver.findElement(by);
 
     return new WebElementClass(this, by, elementId);
@@ -50,6 +51,10 @@ export default class Browser {
     return elementIds.map(
       elementId => new WebElementClass(this, by, elementId)
     );
+  }
+
+  async elementText(element: WebElement) {
+    return await this.driver.elementText(element.elementId);
   }
 
   async go(url: string) {

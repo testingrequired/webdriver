@@ -7,4 +7,8 @@ export default class WebElement {
     public readonly by: By,
     public elementId: string
   ) {}
+
+  async text() {
+    return await this.browser.elementText(this);
+  }
 }

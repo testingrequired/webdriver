@@ -1,4 +1,4 @@
-const { WebDriver, Browser } = require("../lib");
+const { Browser, By } = require("../lib");
 
 (async () => {
   const browser = Browser.build({
@@ -8,11 +8,17 @@ const { WebDriver, Browser } = require("../lib");
     }
   });
 
-  await browser.driver.newSession();
+  try {
+    await browser.driver.newSession();
 
-  await browser.go("https://www.google.com/");
+    await browser.go("https://www.exampletest.app/");
 
-  await browser.close();
+    const header = await browser.findElement(new By("css selector", "html"));
 
-  await browser.driver.deleteSession();
+    console.log(header.elementId);
+  } finally {
+    await browser.close();
+
+    await browser.driver.deleteSession();
+  }
 })();

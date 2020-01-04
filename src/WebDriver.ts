@@ -51,6 +51,8 @@ export default class WebDriver {
   }
 
   async findElement(by: By): Promise<string> {
+    debugger;
+
     const result = await this.sessionCommand<FindElementResult>(
       "/element",
       "POST",
@@ -91,6 +93,13 @@ export default class WebDriver {
     );
 
     return result.value.map(v => v.ELEMENT);
+  }
+
+  async elementText(elementId: string) {
+    return await this.sessionCommand<string>(
+      `/element/${elementId}/text`,
+      "GET"
+    );
   }
 
   async url(url: string) {
