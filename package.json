@@ -1,0 +1,63 @@
+{
+  "name": "@testingrequired/webdriver",
+  "version": "0.0.0",
+  "description": "A webdriver library",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "lib"
+  ],
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+    "prestart": "npm run build",
+    "start": "node -r esm ./bin/cli",
+    "prepublishOnly": "npm run verify && npm run build",
+    "pack-preview": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz",
+    "test": "jest",
+    "verify": "npm run test && npm start",
+    "codecov": "codecov",
+    "selenium": "selenium-standalone"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/testingrequired/webdriver.git"
+  },
+  "keywords": [],
+  "author": "Kylee Tilley <kylee@testingrequired.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/testingrequired/webdriver/issues"
+  },
+  "homepage": "https://github.com/testingrequired/webdriver#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.7.5",
+    "@babel/core": "^7.7.5",
+    "@babel/plugin-proposal-class-properties": "^7.7.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
+    "@babel/plugin-syntax-dynamic-import": "^7.7.4",
+    "@babel/plugin-transform-runtime": "^7.7.6",
+    "@babel/preset-env": "^7.7.6",
+    "@babel/preset-typescript": "^7.7.4",
+    "@types/jest": "^24.0.23",
+    "@types/node": "^12.12.17",
+    "@types/node-fetch": "^2.5.4",
+    "codecov": "^3.6.1",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.2.0",
+    "typescript": "^3.7.3"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.7.0",
+    "@babel/runtime": "^7.7.6",
+    "esm": "^3.2.25",
+    "node-fetch": "^2.6.0",
+    "selenium-standalone": "^6.17.0",
+    "yargs": "^15.0.2"
+  }
+}
