@@ -1,4 +1,5 @@
-import WebDriver, { WebdriverOptions } from "./WebDriver";
+import WebDriver from "./WebDriver";
+import WebdriverOptions from "./WebdriverOptions";
 import { By } from "./By";
 import WebElement from "./WebElement";
 import { ElementNotFoundError } from "./errors";

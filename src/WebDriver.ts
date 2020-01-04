@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import { By } from "./By";
 import Capabilities from "./Capabilities";
+import WebdriverOptions from "./WebdriverOptions";
 
 export default class WebDriver {
   private _sessionId?: string;
@@ -112,11 +113,6 @@ export default class WebDriver {
   async closeWindow() {
     await this.sessionCommand("/window", "DELETE");
   }
-}
-
-export interface WebdriverOptions {
-  remoteUrl: string;
-  desiredCapabilities: Capabilities;
 }
 
 interface FindElementResult {
