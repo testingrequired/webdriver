@@ -102,7 +102,7 @@ export default class WebDriver {
   }
 }
 
-interface WebdriverOptions {
+export interface WebdriverOptions {
   remoteUrl?: string;
   desiredCapabilities?: any;
 }

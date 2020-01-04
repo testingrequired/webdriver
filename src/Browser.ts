@@ -1,9 +1,14 @@
-import WebDriver from "./WebDriver";
+import WebDriver, { WebdriverOptions } from "./WebDriver";
 import { By } from "./By";
 import WebElement from "./WebElement";
 
 export default class Browser {
   constructor(public readonly driver: WebDriver) {}
+
+  static build(options: WebdriverOptions) {
+    const driver = new WebDriver(options);
+    return new Browser(driver);
+  }
 
   async findElement(by: By, WebElementClass = WebElement) {
     const elementId = await this.driver.findElement(by);
