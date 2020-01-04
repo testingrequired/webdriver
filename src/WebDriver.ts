@@ -30,11 +30,17 @@ export default class WebDriver {
     const url = `${this.options.remoteUrl}${command}`;
     const res = await fetch(url, { method, body: JSON.stringify(body) });
 
+    console.log(
+      [method, command, ...(body ? [JSON.stringify(body)] : [])].join(": ")
+    );
+
     if (!res.ok) {
       throw new Error(await res.text());
     }
 
     const data: T = await res.json();
+
+    console.log(`DATA: ${JSON.stringify(data)}`);
 
     return data;
   }
