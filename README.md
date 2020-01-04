@@ -5,6 +5,7 @@ A webdriver library
 ## Usage
 
 ```javascript
+import assert from "assert";
 import { Browser } from "@testingrequired/webdriver";
 
 (async () => {
@@ -15,11 +16,9 @@ import { Browser } from "@testingrequired/webdriver";
 
     const header = await browser.$("html");
 
-    console.log(header.elementId);
-
     const header2 = await browser.$x("//html");
 
-    console.log(header2.elementId);
+    assert.strictEqual(header.elementId, header2.elementId);
   });
 })();
 ```
