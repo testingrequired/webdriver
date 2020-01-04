@@ -52,8 +52,6 @@ export default class WebDriver {
   }
 
   async findElement(by: By): Promise<string | undefined> {
-    debugger;
-
     const result = await this.sessionCommand<FindElementResult>(
       "/element",
       "POST",
