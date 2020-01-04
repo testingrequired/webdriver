@@ -31,7 +31,7 @@
 |      | GET    | /session/{session id}/element/{element id}/attribute/{name}    | Get Element Attribute      |
 |      | GET    | /session/{session id}/element/{element id}/property/{name}     | Get Element Property       |
 |      | GET    | /session/{session id}/element/{element id}/css/{property name} | Get Element CSS Value      |
-|      | GET    | /session/{session id}/element/{element id}/text                | Get Element Text           |
+| x    | GET    | /session/{session id}/element/{element id}/text                | Get Element Text           |
 |      | GET    | /session/{session id}/element/{element id}/name                | Get Element Tag Name       |
 |      | GET    | /session/{session id}/element/{element id}/rect                | Get Element Rect           |
 |      | GET    | /session/{session id}/element/{element id}/enabled             | Is Element Enabled         |
