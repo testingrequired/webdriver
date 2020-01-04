@@ -1,4 +1,4 @@
-const { Browser, By } = require("../lib");
+const { Browser } = require("../lib");
 
 (async () => {
   const remoteUrl = "http://localhost:4444/wd/hub";
