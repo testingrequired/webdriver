@@ -31,3 +31,16 @@ import { Browser } from "@testingrequired/webdriver";
 
 - Use real promises
 - First class page objects
+
+## Development
+
+### Setup
+
+1. Clone repo
+2. `$ npm ci`
+3. `$ npm run selenium -- install`
+
+### Running
+
+1. `$ npm run selenium -- start`
+2. `$ npm start`
