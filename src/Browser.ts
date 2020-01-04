@@ -1,6 +1,7 @@
 import WebDriver, { WebdriverOptions } from "./WebDriver";
 import { By } from "./By";
 import WebElement from "./WebElement";
+import { ElementNotFoundError } from "./errors";
 
 export default class Browser {
   constructor(public readonly driver: WebDriver) {}
@@ -33,6 +34,12 @@ export default class Browser {
   async findElement(by: By, WebElementClass = WebElement) {
     const elementId = await this.driver.findElement(by);
 
+    if (typeof elementId === "undefined") {
+      throw new ElementNotFoundError(
+        `Unable to find element using ${by.using}: ${by.value}`
+      );
+    }
+
     return new WebElementClass(this, by, elementId);
   }
 
@@ -49,6 +56,12 @@ export default class Browser {
       fromElementId,
       by
     );
+
+    if (typeof elementId === "undefined") {
+      throw new ElementNotFoundError(
+        `Unable to find element using ${by.using}: ${by.value}`
+      );
+    }
 
     return new WebElementClass(this, by, elementId);
   }

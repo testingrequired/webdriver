@@ -50,7 +50,7 @@ export default class WebDriver {
     );
   }
 
-  async findElement(by: By): Promise<string> {
+  async findElement(by: By): Promise<string | undefined> {
     debugger;
 
     const result = await this.sessionCommand<FindElementResult>(
@@ -62,7 +62,10 @@ export default class WebDriver {
     return result.value.ELEMENT;
   }
 
-  async findElementFromElement(fromElementId: string, by: By): Promise<string> {
+  async findElementFromElement(
+    fromElementId: string,
+    by: By
+  ): Promise<string | undefined> {
     const result = await this.sessionCommand<FindElementResult>(
       `/element/${fromElementId}/element`,
       "POST",
@@ -117,7 +120,7 @@ export interface WebdriverOptions {
 }
 
 interface FindElementResult {
-  value: { ELEMENT: string };
+  value: { ELEMENT?: string };
 }
 
 interface FindElementsResult {
