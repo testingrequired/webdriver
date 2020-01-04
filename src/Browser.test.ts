@@ -22,6 +22,10 @@ describe("Browser", () => {
     browser = new Browser(driver);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe("findElement", () => {
     const expectedElementId = "expectedElementId";
     let element: WebElement;
@@ -37,6 +41,21 @@ describe("Browser", () => {
 
     it("should have element id set", () => {
       expect(element.elementId).toBe(expectedElementId);
+    });
+
+    describe("when passing an extended web element class", () => {
+      class CustomWebElement extends WebElement {}
+
+      beforeEach(async () => {
+        element = await browser.findElement(
+          new By("css selector", ""),
+          CustomWebElement
+        );
+      });
+
+      it("should return a WebElement", async () => {
+        expect(element).toBeInstanceOf(CustomWebElement);
+      });
     });
 
     describe("when element not found", () => {
@@ -80,6 +99,22 @@ describe("Browser", () => {
       expect(element.elementId).toBe(expectedElementId);
     });
 
+    describe("when passing an extended web element class", () => {
+      class CustomWebElement extends WebElement {}
+
+      beforeEach(async () => {
+        element = await browser.findElementFromElement(
+          "fromElementId",
+          new By("css selector", ""),
+          CustomWebElement
+        );
+      });
+
+      it("should return a WebElement", async () => {
+        expect(element).toBeInstanceOf(CustomWebElement);
+      });
+    });
+
     describe("when element not found", () => {
       const expectedSelector = "expectedSelector";
 
@@ -119,6 +154,23 @@ describe("Browser", () => {
     it("should have element id set", () => {
       expect(element.elementId).toBe(expectedElementId);
     });
+
+    describe("when passing an extended web element class", () => {
+      class CustomWebElement extends WebElement {}
+
+      beforeEach(async () => {
+        elements = await browser.findElements(
+          new By("css selector", ""),
+          CustomWebElement
+        );
+
+        element = elements[0];
+      });
+
+      it("should return a WebElement", async () => {
+        expect(element).toBeInstanceOf(CustomWebElement);
+      });
+    });
   });
 
   describe("findElementsFromElement", () => {
@@ -141,6 +193,98 @@ describe("Browser", () => {
 
     it("should have element id set", () => {
       expect(element.elementId).toBe(expectedElementId);
+    });
+
+    describe("when passing an extended web element class", () => {
+      class CustomWebElement extends WebElement {}
+
+      beforeEach(async () => {
+        elements = await browser.findElementsFromElement(
+          "fromElementId",
+          new By("css selector", ""),
+          CustomWebElement
+        );
+
+        element = elements[0];
+      });
+
+      it("should return a WebElement", async () => {
+        expect(element).toBeInstanceOf(CustomWebElement);
+      });
+    });
+  });
+
+  describe("go", () => {
+    const expectedUrl = "expectedUrl";
+
+    beforeEach(() => {
+      driver.url = jest.fn();
+    });
+
+    it("should call driver method", () => {
+      browser.go(expectedUrl);
+
+      expect(driver.url).toBeCalledWith(expectedUrl);
+    });
+  });
+
+  describe("close", () => {
+    beforeEach(() => {
+      driver.closeWindow = jest.fn();
+    });
+
+    it("should call driver method", () => {
+      browser.close();
+
+      expect(driver.closeWindow).toBeCalled();
+    });
+  });
+
+  describe("session", () => {
+    const callback = jest.fn();
+
+    beforeEach(() => {
+      driver.newSession = jest.fn();
+      driver.deleteSession = jest.fn();
+      driver.closeWindow = jest.fn();
+
+      browser.session(callback);
+    });
+
+    afterEach(() => {
+      callback.mockClear();
+    });
+
+    it("should call the callback with browser instance", () => {
+      expect(callback).toBeCalledWith(browser);
+    });
+
+    it("should create a new session", () => {
+      expect(driver.newSession).toBeCalled();
+    });
+
+    it("should close window when completed", () => {
+      expect(driver.closeWindow).toBeCalled();
+    });
+
+    describe("when error is thrown", () => {
+      beforeEach(() => {
+        callback.mockImplementation(() => {
+          throw new Error();
+        });
+
+        browser.session(callback);
+      });
+
+      it("should delete session", () => {
+        expect(driver.deleteSession).toBeCalled();
+      });
+
+      it("should close window", () => {
+        callback.mockImplementation(() => {
+          throw new Error();
+        });
+      });
     });
   });
 });
