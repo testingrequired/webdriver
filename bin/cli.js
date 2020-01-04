@@ -9,10 +9,10 @@ const { WebDriver } = require("../lib");
         args: [
           "binary=/usr/bin/google-chrome-stable",
           "remote-debugging-port=9222",
+          "window-size=1920,1080",
           "headless",
           "disable-gpu",
-          "no-sandbox",
-          "disable-setuid-sandbox"
+          "disable-features=VizDisplayCompositor"
         ]
       }
     }
