@@ -40,7 +40,7 @@ describe("WebDriver", () => {
         await driver.newSession();
       });
 
-      it.skip("should define a session id", () => {
+      it("should define a session id", () => {
         expect(driver.sessionId).toBeDefined();
       });
 
@@ -56,133 +56,143 @@ describe("WebDriver", () => {
     });
   });
 
-  describe("find element", () => {
-    const selector = "body";
-    const strategy = "css selector";
-    const by = new By(strategy, selector);
-    const expectedElementId = "expectedElementId";
+  describe("elements", () => {
+    describe("find element", () => {
+      const selector = "body";
+      const strategy = "css selector";
+      const by = new By(strategy, selector);
+      const expectedElementId = "expectedElementId";
 
-    beforeEach(async () => {
-      const response = mockJsonResponse({
-        value: { ELEMENT: expectedElementId }
+      beforeEach(async () => {
+        const response = mockJsonResponse({
+          value: { ELEMENT: expectedElementId }
+        });
+
+        (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+          response
+        );
       });
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-    });
+      it("should make request to webdriver", async () => {
+        await driver.findElement(by);
 
-    it("should make request to webdriver", async () => {
-      await driver.findElement(by);
-
-      expect(fetch).toBeCalledWith(
-        "remoteUrl/session/expectedSessionId/element",
-        {
-          body: `{"using":"${strategy}","value":"${selector}"}`,
-          method: "POST"
-        }
-      );
-    });
-
-    it.skip("should return element id", async () => {
-      expect(await driver.findElement(by)).toBe(expectedElementId);
-    });
-  });
-
-  describe("find element from element", () => {
-    const fromElementId = "fromElementId";
-    const selector = "body";
-    const strategy = "css selector";
-    const by = new By(strategy, selector);
-    const expectedElementId = "expectedElementId";
-
-    beforeEach(async () => {
-      const response = mockJsonResponse({
-        value: { ELEMENT: expectedElementId }
+        expect(fetch).toBeCalledWith(
+          "remoteUrl/session/expectedSessionId/element",
+          {
+            body: `{"using":"${strategy}","value":"${selector}"}`,
+            method: "POST"
+          }
+        );
       });
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
+      it("should return element id", async () => {
+        expect(await driver.findElement(by)).toBe(expectedElementId);
+      });
     });
 
-    it("should make request to webdriver", async () => {
-      await driver.findElementFromElement(fromElementId, by);
+    describe("find element from element", () => {
+      const fromElementId = "fromElementId";
+      const selector = "body";
+      const strategy = "css selector";
+      const by = new By(strategy, selector);
+      const expectedElementId = "expectedElementId";
 
-      expect(fetch).toBeCalledWith(
-        `remoteUrl/session/expectedSessionId/element/${fromElementId}/element`,
-        {
-          body: `{"using":"${strategy}","value":"${selector}"}`,
-          method: "POST"
-        }
-      );
-    });
+      beforeEach(async () => {
+        const response = mockJsonResponse({
+          value: { ELEMENT: expectedElementId }
+        });
 
-    it("should return element ids", async () => {
-      expect(await driver.findElementFromElement(fromElementId, by)).toBe(
-        expectedElementId
-      );
-    });
-  });
-
-  describe("find elements", () => {
-    const selector = "body";
-    const strategy = "css selector";
-    const by = new By(strategy, selector);
-    const expectedElementIds = ["expectedElementId", "expectedElementId2"];
-
-    beforeEach(async () => {
-      const response = mockJsonResponse({
-        value: expectedElementIds.map(ELEMENT => ({ ELEMENT }))
+        (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+          response
+        );
       });
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-    });
+      it("should make request to webdriver", async () => {
+        await driver.findElementFromElement(fromElementId, by);
 
-    it("should make request to webdriver", async () => {
-      await driver.findElements(by);
-
-      expect(fetch).toBeCalledWith(
-        "remoteUrl/session/expectedSessionId/elements",
-        {
-          body: `{"using":"${strategy}","value":"${selector}"}`,
-          method: "POST"
-        }
-      );
-    });
-
-    it("should return element ids", async () => {
-      expect(await driver.findElements(by)).toStrictEqual(expectedElementIds);
-    });
-  });
-
-  describe("find elements from element", () => {
-    const fromElementId = "fromElementId";
-    const selector = "body";
-    const strategy = "css selector";
-    const by = new By(strategy, selector);
-    const expectedElementIds = ["expectedElementId", "expectedElementId2"];
-
-    beforeEach(async () => {
-      const response = mockJsonResponse({
-        value: expectedElementIds.map(ELEMENT => ({ ELEMENT }))
+        expect(fetch).toBeCalledWith(
+          `remoteUrl/session/expectedSessionId/element/${fromElementId}/element`,
+          {
+            body: `{"using":"${strategy}","value":"${selector}"}`,
+            method: "POST"
+          }
+        );
       });
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
+      it("should return element ids", async () => {
+        expect(await driver.findElementFromElement(fromElementId, by)).toBe(
+          expectedElementId
+        );
+      });
     });
 
-    it("should make request to webdriver", async () => {
-      await driver.findElementsFromElement(by, fromElementId);
+    describe("find elements", () => {
+      const selector = "body";
+      const strategy = "css selector";
+      const by = new By(strategy, selector);
+      const expectedElementIds = ["expectedElementId", "expectedElementId2"];
 
-      expect(fetch).toBeCalledWith(
-        `remoteUrl/session/expectedSessionId/element/${fromElementId}/elements`,
-        {
-          body: `{"using":"${strategy}","value":"${selector}"}`,
-          method: "POST"
-        }
-      );
+      beforeEach(async () => {
+        const response = mockJsonResponse({
+          value: expectedElementIds.map(ELEMENT => ({ ELEMENT }))
+        });
+
+        (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+          response
+        );
+      });
+
+      it("should make request to webdriver", async () => {
+        await driver.findElements(by);
+
+        expect(fetch).toBeCalledWith(
+          "remoteUrl/session/expectedSessionId/elements",
+          {
+            body: `{"using":"${strategy}","value":"${selector}"}`,
+            method: "POST"
+          }
+        );
+      });
+
+      it("should return element ids", async () => {
+        expect(await driver.findElements(by)).toStrictEqual(expectedElementIds);
+      });
     });
 
-    it("should return element ids", async () => {
-      expect(
-        await driver.findElementsFromElement(by, fromElementId)
-      ).toStrictEqual(expectedElementIds);
+    describe("find elements from element", () => {
+      const fromElementId = "fromElementId";
+      const selector = "body";
+      const strategy = "css selector";
+      const by = new By(strategy, selector);
+      const expectedElementIds = ["expectedElementId", "expectedElementId2"];
+
+      beforeEach(async () => {
+        const response = mockJsonResponse({
+          value: expectedElementIds.map(ELEMENT => ({ ELEMENT }))
+        });
+
+        (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+          response
+        );
+      });
+
+      it("should make request to webdriver", async () => {
+        await driver.findElementsFromElement(by, fromElementId);
+
+        expect(fetch).toBeCalledWith(
+          `remoteUrl/session/expectedSessionId/element/${fromElementId}/elements`,
+          {
+            body: `{"using":"${strategy}","value":"${selector}"}`,
+            method: "POST"
+          }
+        );
+      });
+
+      it("should return element ids", async () => {
+        expect(
+          await driver.findElementsFromElement(by, fromElementId)
+        ).toStrictEqual(expectedElementIds);
+      });
     });
   });
 
