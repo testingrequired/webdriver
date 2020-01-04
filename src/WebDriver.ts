@@ -12,11 +12,8 @@ export default class WebDriver {
     return this._sessionId;
   }
 
-  async executeScriptSync(fn: Function, ...args: Array<string>) {
-    await this.sessionCommand(`/execute/sync`, "POST", {
-      script: fn.toString(),
-      args
-    });
+  async executeScript(script: string, ...args: Array<string>) {
+    await this.sessionCommand(`/execute/sync`, "POST", { script, args });
   }
 
   async newSession() {

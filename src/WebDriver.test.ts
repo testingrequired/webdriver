@@ -255,19 +255,19 @@ describe("WebDriver", () => {
     });
   });
 
-  describe("executeScriptSync", () => {
-    const expectedFunction = function() {};
+  describe("executeScript", () => {
+    const expectedScript = "expectedScript";
     it("should make request to webdriver", async () => {
-      await driver.executeScriptSync(expectedFunction);
+      await driver.executeScript(expectedScript);
 
       expect(fetch).toBeCalledWith(
-        `remoteUrl/session//execute/sync?script=${expectedFunction.toString()}`,
+        `remoteUrl/session/expectedSessionId/execute/sync`,
         {
           method: "POST",
-          body: {
-            script: expectedFunction.toString(),
+          body: JSON.stringify({
+            script: expectedScript,
             args: []
-          }
+          })
         }
       );
     });

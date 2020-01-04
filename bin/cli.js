@@ -9,7 +9,7 @@ const { Browser } = require("../lib");
 
     const header = await browser.$("html");
 
-    await browser.driver.executeScriptSync(
+    await browser.driver.executeScript(
       "console.log(`Hello ${arguments[0]}`)",
       "World"
     );
