@@ -2,6 +2,10 @@
 
 A webdriver library
 
+## Note
+
+This is not a production ready project yet. Breaking changes should be expected.
+
 ## Usage
 
 ```javascript
