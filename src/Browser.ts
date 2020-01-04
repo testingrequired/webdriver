@@ -5,6 +5,16 @@ import WebElement from "./WebElement";
 export default class Browser {
   constructor(public readonly driver: WebDriver) {}
 
+  async session(fn: Function) {
+    try {
+      await this.driver.newSession();
+      await fn.call(null, this);
+    } finally {
+      await this.close();
+      await this.driver.deleteSession();
+    }
+  }
+
   static build(options: WebdriverOptions) {
     const driver = new WebDriver(options);
     return new Browser(driver);

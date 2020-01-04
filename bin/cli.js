@@ -1,16 +1,14 @@
 const { Browser, By } = require("../lib");
 
 (async () => {
-  const browser = Browser.build({
+  const capabilities = {
     remoteUrl: "http://localhost:4444/wd/hub",
     desiredCapabilities: {
       browserName: "chrome"
     }
-  });
+  };
 
-  try {
-    await browser.driver.newSession();
-
+  await Browser.build(capabilities).session(async browser => {
     await browser.go("https://www.exampletest.app/");
 
     const header = await browser.$("html");
@@ -20,9 +18,5 @@ const { Browser, By } = require("../lib");
     const header2 = await browser.$x("//html");
 
     console.log(header2.elementId);
-  } finally {
-    await browser.close();
-
-    await browser.driver.deleteSession();
-  }
+  });
 })();
