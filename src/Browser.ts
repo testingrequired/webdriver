@@ -3,21 +3,7 @@ import { By } from "./By";
 import WebElement from "./WebElement";
 
 export default class Browser {
-  constructor(public readonly driver: WebDriver) {
-    return new Proxy(this, {
-      get(target, prop) {
-        if (prop in target) {
-          return (target as any)[prop];
-        }
-
-        if (prop in driver) {
-          return (target as any)[prop];
-        }
-
-        throw new Error(`prop ${String(prop)} not found`);
-      }
-    });
-  }
+  constructor(public readonly driver: WebDriver) {}
 
   async findElement(by: By, WebElementClass = WebElement) {
     const elementId = await this.driver.findElement(by);

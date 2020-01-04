@@ -8,11 +8,13 @@ const { WebDriver, Browser } = require("../lib");
     }
   });
 
-  await driver.newSession();
+  const browser = new Browser(driver);
 
-  await driver.url("https://www.google.com/");
+  await browser.driver.newSession();
 
-  await driver.closeWindow();
+  await browser.go("https://www.google.com/");
 
-  await driver.deleteSession();
+  await browser.close();
+
+  await browser.driver.deleteSession();
 })();
