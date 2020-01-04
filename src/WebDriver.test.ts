@@ -4,7 +4,7 @@ import fetch, { Response } from "node-fetch";
 
 jest.mock("node-fetch");
 
-describe.skip("WebDriver", () => {
+describe("WebDriver", () => {
   let driver: WebDriver;
 
   beforeEach(async () => {
@@ -73,10 +73,13 @@ describe.skip("WebDriver", () => {
     it("should make request to webdriver", async () => {
       await driver.findElement(by);
 
-      expect(fetch).toBeCalledWith("remoteUrl/session//element", {
-        body: `{"using":"${strategy}","value":"${selector}"}`,
-        method: "POST"
-      });
+      expect(fetch).toBeCalledWith(
+        "remoteUrl/session/expectedSessionId/element",
+        {
+          body: `{"using":"${strategy}","value":"${selector}"}`,
+          method: "POST"
+        }
+      );
     });
 
     it.skip("should return element id", async () => {
@@ -103,7 +106,7 @@ describe.skip("WebDriver", () => {
       await driver.findElementFromElement(fromElementId, by);
 
       expect(fetch).toBeCalledWith(
-        `remoteUrl/session//element/${fromElementId}/element`,
+        `remoteUrl/session/expectedSessionId/element/${fromElementId}/element`,
         {
           body: `{"using":"${strategy}","value":"${selector}"}`,
           method: "POST"
@@ -135,10 +138,13 @@ describe.skip("WebDriver", () => {
     it("should make request to webdriver", async () => {
       await driver.findElements(by);
 
-      expect(fetch).toBeCalledWith("remoteUrl/session//elements", {
-        body: `{"using":"${strategy}","value":"${selector}"}`,
-        method: "POST"
-      });
+      expect(fetch).toBeCalledWith(
+        "remoteUrl/session/expectedSessionId/elements",
+        {
+          body: `{"using":"${strategy}","value":"${selector}"}`,
+          method: "POST"
+        }
+      );
     });
 
     it("should return element ids", async () => {
@@ -165,7 +171,7 @@ describe.skip("WebDriver", () => {
       await driver.findElementsFromElement(by, fromElementId);
 
       expect(fetch).toBeCalledWith(
-        `remoteUrl/session//element/${fromElementId}/elements`,
+        `remoteUrl/session/expectedSessionId/element/${fromElementId}/elements`,
         {
           body: `{"using":"${strategy}","value":"${selector}"}`,
           method: "POST"
@@ -185,7 +191,7 @@ describe.skip("WebDriver", () => {
     it("should make request to webdriver", async () => {
       await driver.url(expectedUrl);
 
-      expect(fetch).toBeCalledWith("remoteUrl/session//url", {
+      expect(fetch).toBeCalledWith("remoteUrl/session/expectedSessionId/url", {
         body: `{"url":"${expectedUrl}"}`,
         method: "POST"
       });
@@ -196,9 +202,12 @@ describe.skip("WebDriver", () => {
     it("should make request to webdriver", async () => {
       await driver.closeWindow();
 
-      expect(fetch).toBeCalledWith("remoteUrl/session//window", {
-        method: "DELETE"
-      });
+      expect(fetch).toBeCalledWith(
+        "remoteUrl/session/expectedSessionId/window",
+        {
+          method: "DELETE"
+        }
+      );
     });
   });
 });
@@ -211,6 +220,8 @@ function mockJsonResponse(body: any) {
   });
 
   response.text = jest.fn();
+
+  response.ok = true;
 
   return response;
 }
