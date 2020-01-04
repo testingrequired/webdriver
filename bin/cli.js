@@ -1,5 +1,5 @@
 const assert = require("assert");
-const { Browser } = require("../lib");
+const { Browser, sleep } = require("../lib");
 
 (async () => {
   const remoteUrl = "http://localhost:4444/wd/hub";
@@ -16,5 +16,13 @@ const { Browser } = require("../lib");
     const header2 = await browser.$x("//html");
 
     assert.strictEqual(header.elementId, header2.elementId);
+
+    browser.driver.executeFunction(function() {
+      document.querySelector("#userLink").click();
+    });
+
+    await sleep(5000);
+
+    browser.$("#loginForm");
   });
 })();
