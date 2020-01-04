@@ -1,14 +1,9 @@
 const { Browser, By } = require("../lib");
 
 (async () => {
-  const capabilities = {
-    remoteUrl: "http://localhost:4444/wd/hub",
-    desiredCapabilities: {
-      browserName: "chrome"
-    }
-  };
+  const remoteUrl = "http://localhost:4444/wd/hub";
 
-  await Browser.build(capabilities).session(async browser => {
+  await Browser.chrome({ remoteUrl }).session(async browser => {
     await browser.go("https://www.exampletest.app/");
 
     const header = await browser.$("html");

@@ -5,7 +5,7 @@ import Capabilities from "./Capabilities";
 export default class WebDriver {
   private _sessionId?: string;
 
-  constructor(private options: WebdriverOptions = {}) {}
+  constructor(private options: WebdriverOptions) {}
 
   get sessionId() {
     return this._sessionId;
@@ -112,8 +112,8 @@ export default class WebDriver {
 }
 
 export interface WebdriverOptions {
-  remoteUrl?: string;
-  desiredCapabilities?: any;
+  remoteUrl: string;
+  desiredCapabilities: Capabilities;
 }
 
 interface FindElementResult {

@@ -20,6 +20,16 @@ export default class Browser {
     return new Browser(driver);
   }
 
+  static chrome(webdriverOptions: WebdriverOptions) {
+    return Browser.build({
+      ...webdriverOptions,
+      desiredCapabilities: {
+        ...webdriverOptions.desiredCapabilities,
+        browserName: "chrome"
+      }
+    });
+  }
+
   async findElement(by: By, WebElementClass = WebElement) {
     const elementId = await this.driver.findElement(by);
 

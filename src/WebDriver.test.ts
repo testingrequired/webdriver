@@ -9,7 +9,8 @@ describe("WebDriver", () => {
 
   beforeEach(async () => {
     driver = new WebDriver({
-      remoteUrl: "remoteUrl"
+      remoteUrl: "remoteUrl",
+      desiredCapabilities: {}
     });
 
     await driver.newSession();
