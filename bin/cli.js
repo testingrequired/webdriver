@@ -1,3 +1,4 @@
+const assert = require("assert");
 const { Browser } = require("../lib");
 
 (async () => {
@@ -8,10 +9,8 @@ const { Browser } = require("../lib");
 
     const header = await browser.$("html");
 
-    console.log(header.elementId);
-
     const header2 = await browser.$x("//html");
 
-    console.log(header2.elementId);
+    assert.strictEqual(header.elementId, header2.elementId);
   });
 })();
