@@ -101,6 +101,10 @@ export default class Browser {
     return await this.driver.elementText(element.elementId);
   }
 
+  async clickElement(element: WebElement) {
+    await this.driver.clickElement(element.elementId);
+  }
+
   async go(url: string) {
     await this.driver.url(url);
   }

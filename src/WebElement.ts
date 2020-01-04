@@ -48,4 +48,8 @@ export default class WebElement {
       document.querySelector(selector).value = value;
     }, value);
   }
+
+  async click() {
+    await this.browser.clickElement(this);
+  }
 }

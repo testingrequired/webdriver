@@ -234,6 +234,21 @@ describe("WebDriver", () => {
         );
       });
     });
+
+    describe("click element", () => {
+      const expectedElementId = "expectedElementId";
+
+      it("should make request to webdriver", async () => {
+        await driver.clickElement(expectedElementId);
+
+        expect(fetch).toBeCalledWith(
+          "remoteUrl/session/expectedSessionId/element/expectedElementId/click",
+          {
+            method: "POST"
+          }
+        );
+      });
+    });
   });
 
   describe("url", () => {

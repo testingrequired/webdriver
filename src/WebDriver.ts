@@ -128,6 +128,10 @@ export default class WebDriver {
     return result.value;
   }
 
+  async clickElement(elementId: string) {
+    await this.sessionCommand(`/element/${elementId}/click`, "POST");
+  }
+
   async url(url: string) {
     await this.sessionCommand("/url", "POST", { url });
   }
