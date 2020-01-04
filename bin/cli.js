@@ -9,10 +9,9 @@ const { Browser } = require("../lib");
 
     const header = await browser.$("html");
 
-    await browser.driver.executeScript(
-      "console.log(`Hello ${arguments[0]}`)",
-      "World"
-    );
+    await browser.driver.executeFunction(function() {
+      console.log(`Hello ${arguments[0]}`);
+    }, "World");
 
     const header2 = await browser.$x("//html");
 
