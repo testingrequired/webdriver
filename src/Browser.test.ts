@@ -314,10 +314,6 @@ describe("Browser", () => {
       expect(driver.newSession).toBeCalled();
     });
 
-    it("should close window when completed", () => {
-      expect(driver.closeWindow).toBeCalled();
-    });
-
     describe("when error is thrown", () => {
       beforeEach(() => {
         callback.mockImplementation(() => {

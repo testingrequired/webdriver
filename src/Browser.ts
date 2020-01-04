@@ -12,7 +12,6 @@ export default class Browser {
       await this.driver.newSession();
       await fn.call(null, this);
     } finally {
-      await this.close();
       await this.driver.deleteSession();
     }
   }
