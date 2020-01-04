@@ -44,8 +44,6 @@ describe("Browser", () => {
     });
 
     describe("when passing an extended web element class", () => {
-      class CustomWebElement extends WebElement {}
-
       beforeEach(async () => {
         element = await browser.findElement(
           new By("css selector", ""),
@@ -79,6 +77,25 @@ describe("Browser", () => {
     });
   });
 
+  describe("$", () => {
+    const expectedElementId = "expectedElementId";
+    let element: WebElement;
+
+    beforeEach(async () => {
+      driver.findElement = jest.fn(async () => expectedElementId);
+    });
+
+    describe("when passing an extended web element class", () => {
+      beforeEach(async () => {
+        element = await browser.$("", CustomWebElement);
+      });
+
+      it("should return a WebElement", async () => {
+        expect(element).toBeInstanceOf(CustomWebElement);
+      });
+    });
+  });
+
   describe("findElementFromElement", () => {
     const expectedElementId = "expectedElementId";
     let element: WebElement;
@@ -100,8 +117,6 @@ describe("Browser", () => {
     });
 
     describe("when passing an extended web element class", () => {
-      class CustomWebElement extends WebElement {}
-
       beforeEach(async () => {
         element = await browser.findElementFromElement(
           "fromElementId",
@@ -156,14 +171,33 @@ describe("Browser", () => {
     });
 
     describe("when passing an extended web element class", () => {
-      class CustomWebElement extends WebElement {}
-
       beforeEach(async () => {
         elements = await browser.findElements(
           new By("css selector", ""),
           CustomWebElement
         );
 
+        element = elements[0];
+      });
+
+      it("should return a WebElement", async () => {
+        expect(element).toBeInstanceOf(CustomWebElement);
+      });
+    });
+  });
+
+  describe("$$", () => {
+    const expectedElementId = "expectedElementId";
+    let elements: Array<CustomWebElement>;
+    let element: WebElement;
+
+    beforeEach(async () => {
+      driver.findElements = jest.fn(async () => [expectedElementId]);
+    });
+
+    describe("when passing an extended web element class", () => {
+      beforeEach(async () => {
+        elements = await browser.$$("", CustomWebElement);
         element = elements[0];
       });
 
@@ -196,8 +230,6 @@ describe("Browser", () => {
     });
 
     describe("when passing an extended web element class", () => {
-      class CustomWebElement extends WebElement {}
-
       beforeEach(async () => {
         elements = await browser.findElementsFromElement(
           "fromElementId",
@@ -206,6 +238,25 @@ describe("Browser", () => {
         );
 
         element = elements[0];
+      });
+
+      it("should return a WebElement", async () => {
+        expect(element).toBeInstanceOf(CustomWebElement);
+      });
+    });
+  });
+
+  describe("$x", () => {
+    const expectedElementId = "expectedElementId";
+    let element: WebElement;
+
+    beforeEach(async () => {
+      driver.findElement = jest.fn(async () => expectedElementId);
+    });
+
+    describe("when passing an extended web element class", () => {
+      beforeEach(async () => {
+        element = await browser.$x("", CustomWebElement);
       });
 
       it("should return a WebElement", async () => {
@@ -288,3 +339,5 @@ describe("Browser", () => {
     });
   });
 });
+
+class CustomWebElement extends WebElement {}
