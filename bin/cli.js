@@ -9,6 +9,10 @@ const { Browser } = require("../lib");
 
     const header = await browser.$("html");
 
+    await browser.driver.executeScriptSync(function alertTest() {
+      alert("TEST");
+    });
+
     const header2 = await browser.$x("//html");
 
     assert.strictEqual(header.elementId, header2.elementId);

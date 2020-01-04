@@ -254,6 +254,24 @@ describe("WebDriver", () => {
       );
     });
   });
+
+  describe("executeScriptSync", () => {
+    const expectedFunction = function() {};
+    it("should make request to webdriver", async () => {
+      await driver.executeScriptSync(expectedFunction);
+
+      expect(fetch).toBeCalledWith(
+        `remoteUrl/session//execute/sync?script=${expectedFunction.toString()}`,
+        {
+          method: "POST",
+          body: {
+            script: expectedFunction.toString(),
+            args: []
+          }
+        }
+      );
+    });
+  });
 });
 
 function mockJsonResponse(body: any) {
