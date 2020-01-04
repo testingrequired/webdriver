@@ -9,9 +9,7 @@ export default interface Capabilities {
   timeouts?: any;
   strictFileInteractability?: boolean;
   unhandledPromptBehavior?: string;
-  chromeOptions?: {
-    args?: Array<string>;
-  };
+  chromeOptions?: ChromeOptions;
 }
 
 export interface Proxy {
@@ -23,4 +21,25 @@ export interface Proxy {
   sslProxy?: string;
   socksProxy?: string;
   socksVersion?: number;
+}
+
+export interface ChromeOptions {
+  args?: Array<string>;
+  binary?: string;
+  extensions?: Array<string>;
+  localState?: Record<string, any>;
+  prefs?: Record<string, any>;
+  detach?: boolean;
+  debuggerAddress?: string;
+  excludeSwitches?: Array<string>;
+  minidumpPath?: string;
+  mobileEmulation?: Record<string, any>;
+  perfLoggingPrefs?: Record<
+    | "enableNetwork"
+    | "enablePage"
+    | "traceCategories"
+    | "bufferUsageReportingInterval",
+    boolean | string | number
+  >;
+  windowTypes?: Array<string>;
 }
