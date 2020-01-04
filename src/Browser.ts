@@ -5,7 +5,7 @@ import WebElement from "./WebElement";
 export default class Browser {
   constructor(public readonly driver: WebDriver) {}
 
-  async session(fn: Function) {
+  async session(fn: (browser: Browser) => void) {
     try {
       await this.driver.newSession();
       await fn.call(null, this);
