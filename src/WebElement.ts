@@ -35,4 +35,17 @@ export default class WebElement {
   async text() {
     return await this.browser.elementText(this);
   }
+
+  async executeFunction(fn: Function, ...args: Array<string>) {
+    await this.browser.driver.executeFunction(fn, this.by.value, ...args);
+  }
+
+  async sendKeys(value: string) {
+    await this.executeFunction(function() {
+      const selector = arguments[0];
+      const value = arguments[1];
+
+      document.querySelector(selector).value = value;
+    }, value);
+  }
 }
