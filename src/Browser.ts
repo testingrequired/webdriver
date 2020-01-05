@@ -38,10 +38,10 @@ export default class Browser {
     );
   }
 
-  async findElement(
+  async findElement<T extends WebElement>(
     by: By,
-    WebElementClass: Constructor<WebElement> = WebElement
-  ) {
+    WebElementClass?: Constructor<T>
+  ): Promise<T> {
     const elementId = await this.driver.findElement(by);
 
     if (typeof elementId === "undefined") {
@@ -50,21 +50,26 @@ export default class Browser {
       );
     }
 
-    return new WebElementClass(this, by, elementId);
+    const WebElementImplementation: Constructor<T> = (WebElementClass ||
+      WebElement) as any; // TODO: This is, admittedly, a hack
+
+    const element: T = new WebElementImplementation(this, by, elementId);
+
+    return element;
   }
 
-  async $(
+  async $<T extends WebElement>(
     selector: string,
-    WebElementClass: Constructor<WebElement> = WebElement
+    WebElementClass?: Constructor<T>
   ) {
-    return this.findElement(By.css(selector), WebElementClass);
+    return this.findElement<T>(By.css(selector), WebElementClass);
   }
 
-  async findElementFromElement(
+  async findElementFromElement<T extends WebElement>(
     fromElementId: string,
     by: By,
-    WebElementClass: Constructor<WebElement> = WebElement
-  ) {
+    WebElementClass?: Constructor<T>
+  ): Promise<T> {
     const elementId = await this.driver.findElementFromElement(
       fromElementId,
       by
@@ -76,44 +81,58 @@ export default class Browser {
       );
     }
 
-    return new WebElementClass(this, by, elementId);
+    const WebElementImplementation: Constructor<T> = (WebElementClass ||
+      WebElement) as any; // TODO: This is, admittedly, a hack
+
+    const element: T = new WebElementImplementation(this, by, elementId);
+
+    return element;
   }
 
-  async findElements(
+  async findElements<T extends WebElement>(
     by: By,
-    WebElementClass: Constructor<WebElement> = WebElement
-  ) {
+    WebElementClass?: Constructor<T>
+  ): Promise<Array<T>> {
     const elementIds = await this.driver.findElements(by);
 
+    const WebElementImplementation: Constructor<T> = (WebElementClass ||
+      WebElement) as any; // TODO: This is, admittedly, a hack
+
     return elementIds.map(
-      elementId => new WebElementClass(this, by, elementId)
+      elementId => new WebElementImplementation(this, by, elementId)
     );
   }
 
-  async $$(
+  async $$<T extends WebElement>(
     selector: string,
-    WebElementClass: Constructor<WebElement> = WebElement
+    WebElementClass?: Constructor<T>
   ) {
-    return this.findElements(By.css(selector), WebElementClass);
+    return this.findElements<T>(By.css(selector), WebElementClass);
   }
 
-  async findElementsFromElement(
+  async findElementsFromElement<T extends WebElement>(
     fromElementId: string,
     by: By,
-    WebElementClass: Constructor<WebElement> = WebElement
-  ) {
+    WebElementClass?: Constructor<T>
+  ): Promise<Array<T>> {
     const elementIds = await this.driver.findElementsFromElement(
       by,
       fromElementId
     );
 
+    const WebElementImplementation: Constructor<T> = (WebElementClass ||
+      WebElement) as any; // TODO: This is, admittedly, a hack
+
     return elementIds.map(
-      elementId => new WebElementClass(this, by, elementId)
+      elementId => new WebElementImplementation(this, by, elementId)
     );
   }
 
-  async $x(selector: string, WebElementClass = WebElement) {
-    return this.findElement(By.xpath(selector), WebElementClass);
+  async $x<T extends WebElement>(
+    selector: string,
+    WebElementClass?: Constructor<T>
+  ) {
+    return this.findElement<T>(By.xpath(selector), WebElementClass);
   }
 
   async elementText(element: WebElement) {

@@ -44,14 +44,12 @@ describe("Browser", () => {
     });
 
     describe("when passing an extended web element class", () => {
-      beforeEach(async () => {
-        element = await browser.findElement(
+      it("should return a WebElement", async () => {
+        const element = await browser.findElement(
           new By("css selector", ""),
           CustomWebElement
         );
-      });
 
-      it("should return a WebElement", async () => {
         expect(element).toBeInstanceOf(CustomWebElement);
       });
     });
@@ -336,4 +334,6 @@ describe("Browser", () => {
   });
 });
 
-class CustomWebElement extends WebElement {}
+class CustomWebElement extends WebElement {
+  customMethod() {}
+}
