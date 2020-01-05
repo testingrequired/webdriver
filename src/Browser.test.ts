@@ -114,6 +114,29 @@ describe("Browser", () => {
       expect(element.elementId).toBe(expectedElementId);
     });
 
+    describe("when element not found", () => {
+      const expectedSelector = "expectedSelector";
+
+      beforeEach(() => {
+        driver.findElement = jest.fn(async () => {
+          return undefined;
+        });
+      });
+
+      it("should throw element not found error", () => {
+        expect(
+          browser.findElementFromElement(
+            "fromElementId",
+            new By("css selector", expectedSelector)
+          )
+        ).rejects.toEqual(
+          new ElementNotFoundError(
+            `Unable to find element using css selector: ${expectedSelector}`
+          )
+        );
+      });
+    });
+
     describe("when passing an extended web element class", () => {
       beforeEach(async () => {
         element = await browser.findElementFromElement(
@@ -330,6 +353,40 @@ describe("Browser", () => {
           throw new Error();
         });
       });
+    });
+  });
+
+  describe("elementText", () => {
+    const expectedElementId = "expectedElementId";
+    let element: WebElement;
+
+    beforeEach(() => {
+      element = new WebElement(browser, By.css(""), expectedElementId);
+
+      driver.elementText = jest.fn();
+    });
+
+    it("should call driver method", async () => {
+      await browser.elementText(element);
+
+      expect(driver.elementText).toBeCalledWith(expectedElementId);
+    });
+  });
+
+  describe("clickElement", () => {
+    const expectedElementId = "expectedElementId";
+    let element: WebElement;
+
+    beforeEach(() => {
+      element = new WebElement(browser, By.css(""), expectedElementId);
+
+      driver.clickElement = jest.fn();
+    });
+
+    it("should call driver method", async () => {
+      await browser.clickElement(element);
+
+      expect(driver.clickElement).toBeCalledWith(expectedElementId);
     });
   });
 });
