@@ -4,11 +4,11 @@
 | x    | DELETE | /session/{session id}                                          | Delete Session             |
 |      | GET    | /status                                                        | Status                     |
 |      | GET    | /session/{session id}/timeouts                                 | Get Timeouts               |
-|      | POST   | /session/{session id}/timeouts                                 | Set Timeouts               |
-|      | POST   | /session/{session id}/url                                      | Go                         |
+| x    | POST   | /session/{session id}/timeouts                                 | Set Timeouts               |
+| x    | POST   | /session/{session id}/url                                      | Go                         |
 |      | GET    | /session/{session id}/url                                      | Get Current Url            |
 |      | POST   | /session/{session id}/back                                     | Back                       |
-|      | POST   | /session/{session id}/forward                                  | Foward                     |
+|      | POST   | /session/{session id}/forward                                  | Forward                    |
 |      | POST   | /session/{session id}/refresh                                  | Refresh                    |
 |      | GET    | /session/{session id}/title                                    | Get Title                  |
 |      | GET    | /session/{session id}/window                                   | Get Window Handle          |
@@ -25,7 +25,7 @@
 |      | GET    | /session/{session id}/element/active                           | Get Active Element         |
 | x    | POST   | /session/{session id}/element                                  | Find Element               |
 |      | POST   | /session/{session id}/elements                                 | Find Elements              |
-|      | POST   | /session/{session id}/element/{element id}/element             | Find Element From Element  |
+| x    | POST   | /session/{session id}/element/{element id}/element             | Find Element From Element  |
 |      | POST   | /session/{session id}/element/{element id}/elements            | Find Element From Elements |
 |      | GET    | /session/{session id}/element/{element id}/selected            | Is Element Selected        |
 |      | GET    | /session/{session id}/element/{element id}/attribute/{name}    | Get Element Attribute      |
@@ -39,7 +39,7 @@
 |      | POST   | /session/{session id}/element/{element id}/clear               | Element Clear              |
 |      | POST   | /session/{session id}/element/{element id}/value               | Element Send Keys          |
 |      | GET    | /session/{session id}/source                                   | Get Page Source            |
-|      | POST   | /session/{session id}/execute/sync                             | Execute Script             |
+| x    | POST   | /session/{session id}/execute/sync                             | Execute Script             |
 |      | POST   | /session/{session id}/execute/async                            | Execute Async Script       |
 |      | GET    | /session/{session id}/cookie                                   | Get All Cookies            |
 |      | GET    | /session/{session id}/cookie/{name}                            | Get Named Cookie           |
