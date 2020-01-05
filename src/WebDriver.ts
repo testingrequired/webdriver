@@ -3,7 +3,7 @@ import { By } from "./By";
 import Capabilities from "./Capabilities";
 import WebdriverOptions from "./WebdriverOptions";
 
-interface TimeoutsConfig {
+export interface TimeoutsConfig {
   script?: number;
   pageLoad?: number;
   implicit?: number;
@@ -12,7 +12,10 @@ interface TimeoutsConfig {
 export default class WebDriver {
   private _sessionId?: string;
 
-  constructor(private options: WebdriverOptions) {}
+  constructor(
+    private options: WebdriverOptions,
+    private timeoutsConfig: TimeoutsConfig = {}
+  ) {}
 
   get sessionId() {
     return this._sessionId;
@@ -39,6 +42,8 @@ export default class WebDriver {
     });
 
     this._sessionId = result.sessionId;
+
+    await this.setTimeouts(this.timeoutsConfig);
 
     return result;
   }

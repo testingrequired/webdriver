@@ -1,4 +1,4 @@
-import WebDriver from "./WebDriver";
+import WebDriver, { TimeoutsConfig } from "./WebDriver";
 import WebdriverOptions from "./WebdriverOptions";
 import { By } from "./By";
 import WebElement from "./WebElement";
@@ -16,19 +16,25 @@ export default class Browser {
     }
   }
 
-  static build(options: WebdriverOptions) {
-    const driver = new WebDriver(options);
+  static build(options: WebdriverOptions, timeoutsConfig?: TimeoutsConfig) {
+    const driver = new WebDriver(options, timeoutsConfig);
     return new Browser(driver);
   }
 
-  static chrome(webdriverOptions: WebdriverOptions) {
-    return Browser.build({
-      ...webdriverOptions,
-      desiredCapabilities: {
-        ...webdriverOptions.desiredCapabilities,
-        browserName: "chrome"
-      }
-    });
+  static chrome(
+    webdriverOptions: WebdriverOptions,
+    timeoutsConfig?: TimeoutsConfig
+  ) {
+    return Browser.build(
+      {
+        ...webdriverOptions,
+        desiredCapabilities: {
+          ...webdriverOptions.desiredCapabilities,
+          browserName: "chrome"
+        }
+      },
+      timeoutsConfig
+    );
   }
 
   async findElement(by: By, WebElementClass = WebElement) {

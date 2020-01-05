@@ -1,5 +1,5 @@
 const assert = require("assert");
-const { Browser, WebElement, sleep } = require("../lib");
+const { Browser, WebElement } = require("../lib");
 
 class LoginForm extends WebElement {
   get username() {
@@ -24,18 +24,18 @@ class LoginForm extends WebElement {
 (async () => {
   const remoteUrl = "http://localhost:4444/wd/hub";
 
-  await Browser.chrome({ remoteUrl }).session(async browser => {
-    await browser.driver.setTimeouts({ implicit: 5000 });
+  await Browser.chrome({ remoteUrl }, { implicit: 5000 }).session(
+    async browser => {
+      await browser.go("https://exampletest.app/user");
 
-    await browser.go("https://exampletest.app/user");
+      const loginForm = await browser.$("#loginForm", LoginForm);
 
-    const loginForm = await browser.$("#loginForm", LoginForm);
+      await loginForm.fill("testUser", "password");
 
-    await loginForm.fill("testUser", "password");
+      const h3 = await browser.$("h3");
+      const h3Text = await h3.text();
 
-    const h3 = await browser.$("h3");
-    const h3Text = await h3.text();
-
-    assert.strictEqual(h3Text, "Timeline");
-  });
+      assert.strictEqual(h3Text, "Timeline");
+    }
+  );
 })();
