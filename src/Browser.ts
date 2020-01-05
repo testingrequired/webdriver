@@ -50,7 +50,7 @@ export default class Browser {
   }
 
   async $(selector: string, WebElementClass = WebElement) {
-    return this.findElement(new By("css selector", selector), WebElementClass);
+    return this.findElement(By.css(selector), WebElementClass);
   }
 
   async findElementFromElement(
@@ -81,7 +81,7 @@ export default class Browser {
   }
 
   async $$(selector: string, WebElementClass = WebElement) {
-    return this.findElements(new By("css selector", selector), WebElementClass);
+    return this.findElements(By.css(selector), WebElementClass);
   }
 
   async findElementsFromElement(
@@ -100,7 +100,7 @@ export default class Browser {
   }
 
   async $x(selector: string, WebElementClass = WebElement) {
-    return this.findElement(new By("xpath", selector), WebElementClass);
+    return this.findElement(By.xpath(selector), WebElementClass);
   }
 
   async elementText(element: WebElement) {
