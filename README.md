@@ -9,8 +9,8 @@ This is not a production ready project yet. Breaking changes should be expected.
 ## Usage
 
 ```javascript
-const assert = require("assert");
-const { Browser, WebElement } = require("@testingrequired/webdriver");
+import assert from "assert";
+import { Browser, WebElement } from "@testingrequired/webdriver";
 
 (async () => {
   const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };

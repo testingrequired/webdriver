@@ -1,5 +1,5 @@
-const assert = require("assert");
-const { Browser, WebElement } = require("../lib");
+import assert from "assert";
+import { Browser, WebElement } from "../lib";
 
 (async () => {
   const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
