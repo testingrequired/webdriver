@@ -273,6 +273,23 @@ describe("WebDriver", () => {
         });
       });
 
+      describe("sendKeysElement", () => {
+        const expectedElementId = "expectedElementId";
+        const text = "expectedText";
+
+        it("should make request to webdriver", async () => {
+          await driver.sendKeysElement(expectedElementId, text);
+
+          expect(fetch).toBeCalledWith(
+            `remoteUrl/session/expectedSessionId/element/${expectedElementId}/value`,
+            {
+              method: "POST",
+              body: JSON.stringify({ text, value: text.split("") })
+            }
+          );
+        });
+      });
+
       describe("executeScript", () => {
         const expectedScript = "expectedScript";
         it("should make request to webdriver", async () => {

@@ -389,6 +389,27 @@ describe("Browser", () => {
       expect(driver.clickElement).toBeCalledWith(expectedElementId);
     });
   });
+
+  describe("sendKeysElement", () => {
+    const expectedElementId = "expectedElementId";
+    const expectedText = "expectedText";
+    let element: WebElement;
+
+    beforeEach(() => {
+      element = new WebElement(browser, By.css(""), expectedElementId);
+
+      driver.sendKeysElement = jest.fn();
+    });
+
+    it("should call driver method", async () => {
+      await browser.sendKeysElement(element, expectedText);
+
+      expect(driver.sendKeysElement).toBeCalledWith(
+        expectedElementId,
+        expectedText
+      );
+    });
+  });
 });
 
 class CustomWebElement extends WebElement {

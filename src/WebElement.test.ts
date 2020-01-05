@@ -29,6 +29,20 @@ describe("WebElement", () => {
     });
   });
 
+  describe("sendKeys", () => {
+    const expectedText = "expectedText";
+
+    beforeEach(() => {
+      browser.sendKeysElement = jest.fn();
+    });
+
+    it("should call browser", async () => {
+      await element.sendKeys(expectedText);
+
+      expect(browser.sendKeysElement).toBeCalledWith(element, expectedText);
+    });
+  });
+
   describe("click", () => {
     beforeEach(() => {
       browser.clickElement = jest.fn();

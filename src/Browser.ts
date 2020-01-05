@@ -150,4 +150,8 @@ export default class Browser {
   async close() {
     await this.driver.closeWindow();
   }
+
+  async sendKeysElement(element: WebElement, text: string) {
+    await this.driver.sendKeysElement(element.elementId, text);
+  }
 }

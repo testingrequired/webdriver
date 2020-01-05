@@ -41,35 +41,7 @@ export default class WebElement {
   }
 
   async sendKeys(value: string) {
-    await this.executeFunction(function() {
-      const selector = arguments[0];
-      const value = arguments[1];
-
-      const element = document.querySelector(selector);
-      const descriptor = Object.getOwnPropertyDescriptor(element, "value");
-
-      if (descriptor) delete element.value;
-
-      element.value = value;
-
-      element.dispatchEvent(
-        new Event("input", {
-          bubbles: true,
-          cancelable: true
-        })
-      );
-
-      element.dispatchEvent(
-        new Event("change", {
-          bubbles: true,
-          cancelable: true
-        })
-      );
-
-      if (descriptor) {
-        Object.defineProperty(element, "value", descriptor);
-      }
-    }, value);
+    await this.browser.sendKeysElement(this, value);
   }
 
   async click() {

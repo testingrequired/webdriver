@@ -164,6 +164,13 @@ export default class WebDriver {
   async closeWindow() {
     await this.sessionCommand("/window", "DELETE");
   }
+
+  async sendKeysElement(elementId: string, text: string) {
+    await this.sessionCommand(`/element/${elementId}/value`, "POST", {
+      text,
+      value: text.split("")
+    });
+  }
 }
 
 interface ElementIdValue {
