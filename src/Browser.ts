@@ -3,6 +3,7 @@ import WebdriverOptions from "./WebdriverOptions";
 import { By } from "./By";
 import WebElement from "./WebElement";
 import { ElementNotFoundError } from "./errors";
+import Constructor from "./Constructor";
 
 export default class Browser {
   constructor(public readonly driver: WebDriver) {}
@@ -37,7 +38,10 @@ export default class Browser {
     );
   }
 
-  async findElement(by: By, WebElementClass = WebElement) {
+  async findElement(
+    by: By,
+    WebElementClass: Constructor<WebElement> = WebElement
+  ) {
     const elementId = await this.driver.findElement(by);
 
     if (typeof elementId === "undefined") {
@@ -49,14 +53,17 @@ export default class Browser {
     return new WebElementClass(this, by, elementId);
   }
 
-  async $(selector: string, WebElementClass = WebElement) {
+  async $(
+    selector: string,
+    WebElementClass: Constructor<WebElement> = WebElement
+  ) {
     return this.findElement(By.css(selector), WebElementClass);
   }
 
   async findElementFromElement(
     fromElementId: string,
     by: By,
-    WebElementClass = WebElement
+    WebElementClass: Constructor<WebElement> = WebElement
   ) {
     const elementId = await this.driver.findElementFromElement(
       fromElementId,
@@ -72,7 +79,10 @@ export default class Browser {
     return new WebElementClass(this, by, elementId);
   }
 
-  async findElements(by: By, WebElementClass = WebElement) {
+  async findElements(
+    by: By,
+    WebElementClass: Constructor<WebElement> = WebElement
+  ) {
     const elementIds = await this.driver.findElements(by);
 
     return elementIds.map(
@@ -80,14 +90,17 @@ export default class Browser {
     );
   }
 
-  async $$(selector: string, WebElementClass = WebElement) {
+  async $$(
+    selector: string,
+    WebElementClass: Constructor<WebElement> = WebElement
+  ) {
     return this.findElements(By.css(selector), WebElementClass);
   }
 
   async findElementsFromElement(
     fromElementId: string,
     by: By,
-    WebElementClass = WebElement
+    WebElementClass: Constructor<WebElement> = WebElement
   ) {
     const elementIds = await this.driver.findElementsFromElement(
       by,
