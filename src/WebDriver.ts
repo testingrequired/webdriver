@@ -3,6 +3,12 @@ import { By } from "./By";
 import Capabilities from "./Capabilities";
 import WebdriverOptions from "./WebdriverOptions";
 
+interface TimeoutsConfig {
+  script?: number;
+  pageLoad?: number;
+  implicit?: number;
+}
+
 export default class WebDriver {
   private _sessionId?: string;
 
@@ -21,6 +27,10 @@ export default class WebDriver {
       `return (${fn.toString()}).apply(null, arguments)`,
       ...args
     );
+  }
+
+  setTimeouts(config: TimeoutsConfig) {
+    return this.sessionCommand("/timeouts", "POST", config);
   }
 
   async newSession() {

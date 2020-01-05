@@ -315,6 +315,20 @@ describe("WebDriver", () => {
       );
     });
   });
+
+  describe("setTimeouts", () => {
+    it("should make request to webdriver", async () => {
+      await driver.setTimeouts({});
+
+      expect(fetch).toBeCalledWith(
+        "remoteUrl/session/expectedSessionId/timeouts",
+        {
+          body: `{}`,
+          method: "POST"
+        }
+      );
+    });
+  });
 });
 
 function mockJsonResponse(body: any) {

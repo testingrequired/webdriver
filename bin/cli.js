@@ -25,15 +25,13 @@ class LoginForm extends WebElement {
   const remoteUrl = "http://localhost:4444/wd/hub";
 
   await Browser.chrome({ remoteUrl }).session(async browser => {
-    await browser.go("https://exampletest.app/user");
+    await browser.driver.setTimeouts({ implicit: 5000 });
 
-    await sleep(5000);
+    await browser.go("https://exampletest.app/user");
 
     const loginForm = await browser.$("#loginForm", LoginForm);
 
     await loginForm.fill("testUser", "password");
-
-    await sleep(5000);
 
     const h3 = await browser.$("h3");
     const h3Text = await h3.text();
