@@ -15,7 +15,7 @@ describe("Browser", () => {
     driver.newSession = jest.fn(async function() {
       return {
         sessionId: expectedSessionId,
-        capabilities: {}
+        value: {}
       };
     });
 

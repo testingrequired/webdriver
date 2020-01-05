@@ -1,6 +1,5 @@
 import fetch from "node-fetch";
 import { By } from "./By";
-import Capabilities from "./Capabilities";
 import WebdriverOptions from "./WebdriverOptions";
 
 export interface TimeoutsConfig {
@@ -37,9 +36,17 @@ export default class WebDriver {
   }
 
   async newSession() {
-    const result = await this.command<NewSessionResult>("/session", "POST", {
-      desiredCapabilities: this.options.desiredCapabilities
-    });
+    const result = await this.command<any, NewSessionResult>(
+      "/session",
+      "POST",
+      {
+        desiredCapabilities: this.options.desiredCapabilities
+      }
+    );
+
+    if (!result.sessionId) {
+      throw new Error(`Error creating session: ${JSON.stringify(result)}`);
+    }
 
     this._sessionId = result.sessionId;
 
@@ -54,7 +61,11 @@ export default class WebDriver {
     delete this._sessionId;
   }
 
-  async command<T>(command: string, method: string, body?: any): Promise<T> {
+  async command<T, U = any>(
+    command: string,
+    method: string,
+    body?: any
+  ): Promise<CommandResponse<T> & U> {
     const url = `${this.options.remoteUrl}${command}`;
     const res = await fetch(url, { method, body: JSON.stringify(body) });
 
@@ -66,7 +77,9 @@ export default class WebDriver {
       throw new Error(await res.text());
     }
 
-    const data: T = await res.json();
+    const data: CommandResponse<T> & U = await res.json();
+
+    debugger;
 
     console.log(`DATA: ${JSON.stringify(data)}`);
 
@@ -167,7 +180,6 @@ interface ElementResult {
 
 interface NewSessionResult {
   sessionId: string;
-  capabilities: Capabilities;
 }
 
 interface CommandResponse<T> {
