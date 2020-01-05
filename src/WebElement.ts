@@ -45,7 +45,30 @@ export default class WebElement {
       const selector = arguments[0];
       const value = arguments[1];
 
-      document.querySelector(selector).value = value;
+      const element = document.querySelector(selector);
+      const descriptor = Object.getOwnPropertyDescriptor(element, "value");
+
+      if (descriptor) delete element.value;
+
+      element.value = value;
+
+      element.dispatchEvent(
+        new Event("input", {
+          bubbles: true,
+          cancelable: true
+        })
+      );
+
+      element.dispatchEvent(
+        new Event("change", {
+          bubbles: true,
+          cancelable: true
+        })
+      );
+
+      if (descriptor) {
+        Object.defineProperty(element, "value", descriptor);
+      }
     }, value);
   }
 
