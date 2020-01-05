@@ -17,6 +17,30 @@ describe("WebElement", () => {
     element = new WebElement(browser, by, expectedElementId);
   });
 
+  describe("text", () => {
+    beforeEach(() => {
+      browser.elementText = jest.fn();
+    });
+
+    it("should call browser", async () => {
+      await element.text();
+
+      expect(browser.elementText).toBeCalledWith(element);
+    });
+  });
+
+  describe("click", () => {
+    beforeEach(() => {
+      browser.clickElement = jest.fn();
+    });
+
+    it("should call browser", async () => {
+      await element.click();
+
+      expect(browser.clickElement).toBeCalledWith(element);
+    });
+  });
+
   describe("findElement", () => {
     beforeEach(() => {
       browser.findElementFromElement = jest.fn();
@@ -42,6 +66,38 @@ describe("WebElement", () => {
       await element.$(by.value);
 
       expect(browser.findElementFromElement).toBeCalledWith(
+        expectedElementId,
+        By.css(by.value),
+        WebElement
+      );
+    });
+  });
+
+  describe("findElements", () => {
+    beforeEach(() => {
+      browser.findElementsFromElement = jest.fn();
+    });
+
+    it("should call browser", async () => {
+      await element.findElements(by);
+
+      expect(browser.findElementsFromElement).toBeCalledWith(
+        expectedElementId,
+        by,
+        WebElement
+      );
+    });
+  });
+
+  describe("$$", () => {
+    beforeEach(() => {
+      browser.findElementsFromElement = jest.fn();
+    });
+
+    it("should call browser", async () => {
+      await element.$$(by.value);
+
+      expect(browser.findElementsFromElement).toBeCalledWith(
         expectedElementId,
         By.css(by.value),
         WebElement
