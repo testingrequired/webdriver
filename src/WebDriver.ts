@@ -36,13 +36,9 @@ export default class WebDriver {
   }
 
   async newSession() {
-    const result = await this.command<any, NewSessionResult>(
-      "/session",
-      "POST",
-      {
-        desiredCapabilities: this.options.desiredCapabilities
-      }
-    );
+    const result = await this.command<NewSessionResponse>("/session", "POST", {
+      desiredCapabilities: this.options.desiredCapabilities
+    });
 
     if (!result.sessionId) {
       throw new Error(`Error creating session: ${JSON.stringify(result)}`);
@@ -61,11 +57,11 @@ export default class WebDriver {
     delete this._sessionId;
   }
 
-  async command<T, U = any>(
+  async command<T extends CommandResponse>(
     command: string,
     method: string,
     body?: any
-  ): Promise<CommandResponse<T> & U> {
+  ): Promise<T> {
     const url = `${this.options.remoteUrl}${command}`;
     const res = await fetch(url, { method, body: JSON.stringify(body) });
 
@@ -77,7 +73,7 @@ export default class WebDriver {
       throw new Error(await res.text());
     }
 
-    const data: CommandResponse<T> & U = await res.json();
+    const data: T = await res.json();
 
     debugger;
 
@@ -86,12 +82,12 @@ export default class WebDriver {
     return data;
   }
 
-  async sessionCommand<T = void>(
+  async sessionCommand<T extends CommandResponse>(
     command: string,
     method: string,
     body?: any
-  ): Promise<CommandResponse<T>> {
-    return await this.command(
+  ) {
+    return await this.command<T>(
       `/session/${this.sessionId}${command}`,
       method,
       body
@@ -99,7 +95,7 @@ export default class WebDriver {
   }
 
   async findElement(by: By): Promise<string | undefined> {
-    const result = await this.sessionCommand<ElementResult>(
+    const result = await this.sessionCommand<CommandResponse<ElementIdValue>>(
       "/element",
       "POST",
       by
@@ -114,7 +110,7 @@ export default class WebDriver {
     fromElementId: string,
     by: By
   ): Promise<string | undefined> {
-    const result = await this.sessionCommand<ElementResult>(
+    const result = await this.sessionCommand<CommandResponse<ElementIdValue>>(
       `/element/${fromElementId}/element`,
       "POST",
       by
@@ -126,11 +122,9 @@ export default class WebDriver {
   }
 
   async findElements(by: By): Promise<Array<string>> {
-    const result = await this.sessionCommand<Array<ElementResult>>(
-      "/elements",
-      "POST",
-      by
-    );
+    const result = await this.sessionCommand<
+      CommandResponse<Array<ElementIdValue>>
+    >("/elements", "POST", by);
 
     if (!result.value) return [];
 
@@ -141,11 +135,9 @@ export default class WebDriver {
     by: By,
     fromElementId: string
   ): Promise<Array<string>> {
-    const result = await this.sessionCommand<Array<ElementResult>>(
-      `/element/${fromElementId}/elements`,
-      "POST",
-      by
-    );
+    const result = await this.sessionCommand<
+      CommandResponse<Array<ElementIdValue>>
+    >(`/element/${fromElementId}/elements`, "POST", by);
 
     if (!result.value) return [];
 
@@ -153,7 +145,7 @@ export default class WebDriver {
   }
 
   async elementText(elementId: string) {
-    const result = await this.sessionCommand<string>(
+    const result = await this.sessionCommand<CommandResponse<string>>(
       `/element/${elementId}/text`,
       "GET"
     );
@@ -174,14 +166,14 @@ export default class WebDriver {
   }
 }
 
-interface ElementResult {
+interface ElementIdValue {
   ELEMENT: string;
 }
 
-interface NewSessionResult {
+interface NewSessionResponse extends CommandResponse {
   sessionId: string;
 }
 
-interface CommandResponse<T> {
+interface CommandResponse<T = any> {
   value: T | null;
 }
