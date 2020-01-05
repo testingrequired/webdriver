@@ -222,9 +222,7 @@ describe("WebDriver", () => {
       });
 
       it("should make request to webdriver", async () => {
-        const element = await driver.elementText(expectedElementId);
-
-        element && driver.elementText(element);
+        await driver.elementText(expectedElementId);
 
         expect(fetch).toBeCalledWith(
           "remoteUrl/session/expectedSessionId/element/expectedElementId/text",

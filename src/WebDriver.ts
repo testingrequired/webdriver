@@ -80,7 +80,7 @@ export default class WebDriver {
     command: string,
     method: string,
     body?: any
-  ): Promise<T> {
+  ): Promise<CommandResponse<T>> {
     return await this.command(
       `/session/${this.sessionId}${command}`,
       method,
@@ -89,11 +89,13 @@ export default class WebDriver {
   }
 
   async findElement(by: By): Promise<string | undefined> {
-    const result = await this.sessionCommand<FindElementResult>(
+    const result = await this.sessionCommand<ElementResult>(
       "/element",
       "POST",
       by
     );
+
+    if (!result.value) return;
 
     return result.value.ELEMENT;
   }
@@ -102,21 +104,25 @@ export default class WebDriver {
     fromElementId: string,
     by: By
   ): Promise<string | undefined> {
-    const result = await this.sessionCommand<FindElementResult>(
+    const result = await this.sessionCommand<ElementResult>(
       `/element/${fromElementId}/element`,
       "POST",
       by
     );
 
+    if (!result.value) return;
+
     return result.value.ELEMENT;
   }
 
   async findElements(by: By): Promise<Array<string>> {
-    const result = await this.sessionCommand<FindElementsResult>(
+    const result = await this.sessionCommand<Array<ElementResult>>(
       "/elements",
       "POST",
       by
     );
+
+    if (!result.value) return [];
 
     return result.value.map(v => v.ELEMENT);
   }
@@ -125,17 +131,19 @@ export default class WebDriver {
     by: By,
     fromElementId: string
   ): Promise<Array<string>> {
-    const result = await this.sessionCommand<FindElementsResult>(
+    const result = await this.sessionCommand<Array<ElementResult>>(
       `/element/${fromElementId}/elements`,
       "POST",
       by
     );
 
+    if (!result.value) return [];
+
     return result.value.map(v => v.ELEMENT);
   }
 
   async elementText(elementId: string) {
-    const result = await this.sessionCommand<GetElementTextResult>(
+    const result = await this.sessionCommand<string>(
       `/element/${elementId}/text`,
       "GET"
     );
@@ -156,19 +164,15 @@ export default class WebDriver {
   }
 }
 
-interface FindElementResult {
-  value: { ELEMENT?: string };
-}
-
-interface FindElementsResult {
-  value: Array<{ ELEMENT: string }>;
-}
-
-interface GetElementTextResult {
-  value: string;
+interface ElementResult {
+  ELEMENT: string;
 }
 
 interface NewSessionResult {
   sessionId: string;
   capabilities: Capabilities;
+}
+
+interface CommandResponse<T> {
+  value: T | null;
 }
