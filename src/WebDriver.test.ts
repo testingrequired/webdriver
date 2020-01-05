@@ -6,6 +6,7 @@ jest.mock("node-fetch");
 
 describe("WebDriver", () => {
   let driver: WebDriver;
+  let response: Response;
 
   beforeEach(async () => {
     driver = new WebDriver({
@@ -13,7 +14,7 @@ describe("WebDriver", () => {
       desiredCapabilities: {}
     });
 
-    const response = mockJsonResponse({
+    response = mockJsonResponse({
       sessionId: "expectedSessionId"
     });
 
@@ -42,6 +43,22 @@ describe("WebDriver", () => {
 
       it("should define a session id", () => {
         expect(driver.sessionId).toBeDefined();
+      });
+
+      describe("when session id isnt returned", () => {
+        beforeEach(() => {
+          response = mockJsonResponse({});
+
+          (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+            response
+          );
+        });
+
+        it("should throw error", () => {
+          expect(driver.newSession()).rejects.toEqual(
+            new Error(`Error creating session: {}`)
+          );
+        });
       });
 
       describe("with deleted session", () => {
