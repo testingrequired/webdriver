@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/testingrequired/webdriver.svg?branch=master)](https://travis-ci.org/testingrequired/webdriver)
 
-A webdriver library 🚗
+A webdriver library
 
 ## Note
 
