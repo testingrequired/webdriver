@@ -49,10 +49,7 @@ export default class WebDriver {
   }
 
   async deleteSession() {
-    await this.command<NewSessionResult>(
-      `/session/${this.sessionId}`,
-      "DELETE"
-    );
+    await this.command(`/session/${this.sessionId}`, "DELETE");
 
     delete this._sessionId;
   }
