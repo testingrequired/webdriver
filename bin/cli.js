@@ -2,7 +2,9 @@ import assert from "assert";
 import { Browser, WebElement } from "../lib";
 
 (async () => {
-  const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
+  const webdriverOptions = {
+    remoteUrl: "http://localhost:4444/wd/hub"
+  };
   const timeoutsConfig = { implicit: 5000 };
 
   await Browser.chrome(webdriverOptions, timeoutsConfig).session(
