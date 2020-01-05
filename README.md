@@ -6,6 +6,14 @@ A webdriver library
 
 This is not a production ready project yet. Breaking changes should be expected.
 
+## Install
+
+[![npm version](https://badge.fury.io/js/%40testingrequired%2Fwebdriver.svg)](https://badge.fury.io/js/%40testingrequired%2Fwebdriver)
+
+```bash
+$ npm i -D @testingrequired/webdriver@latest
+```
+
 ## Usage
 
 ```javascript
