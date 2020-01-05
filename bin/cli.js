@@ -33,9 +33,8 @@ class LoginForm extends WebElement {
       await loginForm.fill("testUser", "password");
 
       const h3 = await browser.$("h3");
-      const h3Text = await h3.text();
 
-      assert.strictEqual(h3Text, "Timeline");
+      assert.strictEqual(await h3.text(), "Timeline");
     }
   );
 })();
