@@ -75,8 +75,6 @@ export default class WebDriver {
 
     const data: T = await res.json();
 
-    debugger;
-
     console.log(`DATA: ${JSON.stringify(data)}`);
 
     return data;
