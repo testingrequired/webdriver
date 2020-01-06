@@ -354,10 +354,13 @@ describe("WebDriver", () => {
         );
       });
 
-      it("should throw error", () => {
-        expect(driver.newSession()).rejects.toEqual(
-          new Error(`Error creating session: {}`)
-        );
+      it("should throw error", async () => {
+        try {
+          await driver.newSession();
+          fail("Did not throw error");
+        } catch (e) {
+          expect(e.message).toBe(`Error creating session: {}`);
+        }
       });
     });
 

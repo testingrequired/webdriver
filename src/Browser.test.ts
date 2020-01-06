@@ -118,22 +118,24 @@ describe("Browser", () => {
       const expectedSelector = "expectedSelector";
 
       beforeEach(() => {
-        driver.findElement = jest.fn(async () => {
+        driver.findElementFromElement = jest.fn(async () => {
           return undefined;
         });
       });
 
-      it("should throw element not found error", () => {
-        expect(
-          browser.findElementFromElement(
+      it("should throw element not found error", async () => {
+        try {
+          await browser.findElementFromElement(
             "fromElementId",
             new By("css selector", expectedSelector)
-          )
-        ).rejects.toEqual(
-          new ElementNotFoundError(
+          );
+          fail("Did not throw error");
+        } catch (e) {
+          expect(e).toBeInstanceOf(ElementNotFoundError);
+          expect(e.message).toBe(
             `Unable to find element using css selector: ${expectedSelector}`
-          )
-        );
+          );
+        }
       });
     });
 
@@ -336,22 +338,19 @@ describe("Browser", () => {
     });
 
     describe("when error is thrown", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         callback.mockImplementation(() => {
           throw new Error();
         });
 
-        browser.session(callback);
+        try {
+          await browser.session(callback);
+          fail("Error was not thrown");
+        } catch (e) {}
       });
 
       it("should delete session", () => {
         expect(driver.deleteSession).toBeCalled();
-      });
-
-      it("should close window", () => {
-        callback.mockImplementation(() => {
-          throw new Error();
-        });
       });
     });
   });
