@@ -7,5 +7,5 @@ module.exports = {
   testPathIgnorePatterns: ["<rootDir>/tests"],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   collectCoverage: true,
-  collectCoverageFrom: ["src/**/*.ts"]
+  collectCoverageFrom: ["src/**/*.ts", "!src/index.ts"]
 };
