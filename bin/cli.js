@@ -27,18 +27,38 @@ import { Browser, WebElement } from "../lib";
 })();
 
 function registerOutputHandlers(driver) {
-  driver.on("command", (url, method, body) => {
+  driver.on("sessionStart", capabilities => {
     console.log(
-      [method, url, ...(body ? [JSON.stringify(body)] : [])].join(": ")
+      `Session initiated with capabilities: ${JSON.stringify(capabilities)}`
     );
   });
 
+  driver.on("sessionStart:success", sessionId => {
+    console.log(`Session started. Session Id: ${sessionId}`);
+  });
+
+  driver.on("sessionEnd", sessionId => {
+    console.log(`Session ended. Session Id: ${sessionId}`);
+  });
+
+  driver.on("command", (url, method, body) => {
+    console.log(`COMMAND: ${method} ${url}`);
+
+    if (body) {
+      console.log(`REQ: ${JSON.stringify(body)}`);
+    }
+  });
+
   driver.on("command:success", body => {
-    console.log(`DATA: ${JSON.stringify(body)}`);
+    console.log(`RES: ${JSON.stringify(body)}`);
   });
 
   driver.on("command:fail", error => {
     console.log(`ERROR: ${error.message}`);
+  });
+
+  driver.on("command:end", () => {
+    console.log(`---`);
   });
 }
 

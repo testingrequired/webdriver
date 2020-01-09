@@ -96,6 +96,7 @@ export default class WebDriver extends EventEmitter {
       const error = new Error(await res.text());
 
       this.emit("command:fail", error, res);
+      this.emit("command:end", res, url, method);
 
       throw error;
     }
@@ -103,6 +104,7 @@ export default class WebDriver extends EventEmitter {
     const data: T = await res.json();
 
     this.emit("command:success", data, res, url, method);
+    this.emit("command:end", res, url, method);
 
     return data;
   }

@@ -11,6 +11,7 @@
 | `command`                         | `url`, `method`, `requestBody`?             |
 | `command:success`                 | `responseBody`, `response`, `url`, `method` |
 | `command:fail`                    | `error`, `response`                         |
+| `command:end`                     | `response`, `url`, `method`                 |
 | `findElement`                     | `by`                                        |
 | `findElement:success`             | `by`, `elementId`                           |
 | `findElement:fail`                | `by`                                        |
