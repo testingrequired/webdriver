@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import { By } from "./By";
 import WebdriverOptions from "./WebdriverOptions";
+import { EventEmitter } from "events";
 
 export interface TimeoutsConfig {
   script?: number;
@@ -8,13 +9,22 @@ export interface TimeoutsConfig {
   implicit?: number;
 }
 
-export default class WebDriver {
+export default class WebDriver extends EventEmitter {
   private _sessionId?: string;
 
   constructor(
     private options: WebdriverOptions,
-    private timeoutsConfig: TimeoutsConfig = {}
-  ) {}
+    private timeoutsConfig: TimeoutsConfig = {},
+    registerHandlers?: (driver: WebDriver) => void
+  ) {
+    super();
+
+    debugger;
+
+    if (registerHandlers) {
+      registerHandlers(this);
+    }
+  }
 
   get sessionId() {
     return this._sessionId;
@@ -36,15 +46,27 @@ export default class WebDriver {
   }
 
   async newSession() {
+    const { desiredCapabilities } = this.options;
+
+    this.emit("sessionStart", desiredCapabilities);
+
     const result = await this.command<NewSessionResponse>("/session", "POST", {
-      desiredCapabilities: this.options.desiredCapabilities
+      desiredCapabilities
     });
 
     if (!result.sessionId) {
-      throw new Error(`Error creating session: ${JSON.stringify(result)}`);
+      const error = new Error(
+        `Error creating session: ${JSON.stringify(result)}`
+      );
+
+      this.emit("sessionStart:fail", error);
+
+      throw error;
     }
 
     this._sessionId = result.sessionId;
+
+    this.emit("sessionStart:success", this.sessionId);
 
     await this.setTimeouts(this.timeoutsConfig);
 
@@ -53,6 +75,8 @@ export default class WebDriver {
 
   async deleteSession() {
     await this.command(`/session/${this.sessionId}`, "DELETE");
+
+    this.emit("sessionEnd", this.sessionId);
 
     delete this._sessionId;
   }
@@ -63,19 +87,22 @@ export default class WebDriver {
     body?: any
   ): Promise<T> {
     const url = `${this.options.remoteUrl}${command}`;
+
+    this.emit("command", url, method, body);
+
     const res = await fetch(url, { method, body: JSON.stringify(body) });
 
-    console.log(
-      [method, command, ...(body ? [JSON.stringify(body)] : [])].join(": ")
-    );
-
     if (!res.ok) {
-      throw new Error(await res.text());
+      const error = new Error(await res.text());
+
+      this.emit("command:fail", res, error);
+
+      throw error;
     }
 
     const data: T = await res.json();
 
-    console.log(`DATA: ${JSON.stringify(data)}`);
+    this.emit("command:success", data, res, url, method);
 
     return data;
   }
@@ -93,21 +120,32 @@ export default class WebDriver {
   }
 
   async findElement(by: By): Promise<string | undefined> {
+    this.emit("findElement", by);
+
     const result = await this.sessionCommand<CommandResponse<ElementIdValue>>(
       "/element",
       "POST",
       by
     );
 
-    if (!result.value) return;
+    if (!result.value) {
+      this.emit("findElement:fail", by);
+      return;
+    }
 
-    return result.value.ELEMENT;
+    const elementId = result.value.ELEMENT;
+
+    this.emit("findElement:success", by, elementId);
+
+    return elementId;
   }
 
   async findElementFromElement(
     fromElementId: string,
     by: By
   ): Promise<string | undefined> {
+    this.emit("findElementFromElement", fromElementId, by);
+
     const result = await this.sessionCommand<CommandResponse<ElementIdValue>>(
       `/element/${fromElementId}/element`,
       "POST",
@@ -116,30 +154,46 @@ export default class WebDriver {
 
     if (!result.value) return;
 
-    return result.value.ELEMENT;
+    const elementId = result.value.ELEMENT;
+
+    this.emit("findElementFromElement:success", fromElementId, by, elementId);
+
+    return elementId;
   }
 
   async findElements(by: By): Promise<Array<string>> {
+    this.emit("findElements", by);
+
     const result = await this.sessionCommand<
       CommandResponse<Array<ElementIdValue>>
     >("/elements", "POST", by);
 
     if (!result.value) return [];
 
-    return result.value.map(v => v.ELEMENT);
+    const elementIds = result.value.map(v => v.ELEMENT);
+
+    this.emit("findElements:success", by, elementIds);
+
+    return elementIds;
   }
 
   async findElementsFromElement(
     by: By,
     fromElementId: string
   ): Promise<Array<string>> {
+    this.emit("findElementsFromElement", by, fromElementId);
+
     const result = await this.sessionCommand<
       CommandResponse<Array<ElementIdValue>>
     >(`/element/${fromElementId}/elements`, "POST", by);
 
     if (!result.value) return [];
 
-    return result.value.map(v => v.ELEMENT);
+    const elementIds = result.value.map(v => v.ELEMENT);
+
+    this.emit("findElementsFromElement:success", fromElementId, by, elementIds);
+
+    return elementIds;
   }
 
   async elementText(elementId: string) {

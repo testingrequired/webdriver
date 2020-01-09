@@ -7,20 +7,36 @@ import { Browser, WebElement } from "../lib";
   };
   const timeoutsConfig = { implicit: 5000 };
 
-  await Browser.chrome(webdriverOptions, timeoutsConfig).session(
-    async browser => {
-      await browser.go("https://exampletest.app/user");
+  debugger;
 
-      const loginForm = await browser.$("#loginForm", LoginForm);
+  await Browser.chrome(
+    webdriverOptions,
+    timeoutsConfig,
+    registerOutputHandlers
+  ).session(async browser => {
+    await browser.go("https://exampletest.app/user");
 
-      await loginForm.fillAndSubmit("testUser", "password");
+    const loginForm = await browser.$("#loginForm", LoginForm);
 
-      const h3 = await browser.$("h3");
+    await loginForm.fillAndSubmit("testUser", "password");
 
-      assert.strictEqual(await h3.text(), "Timeline");
-    }
-  );
+    const h3 = await browser.$("h3");
+
+    assert.strictEqual(await h3.text(), "Timeline");
+  });
 })();
+
+function registerOutputHandlers(driver) {
+  driver.on("command", (url, method, body) => {
+    console.log(
+      [method, url, ...(body ? [JSON.stringify(body)] : [])].join(": ")
+    );
+  });
+
+  driver.on("command:success", body => {
+    console.log(`DATA: ${JSON.stringify(body)}`);
+  });
+}
 
 class LoginForm extends WebElement {
   get username() {

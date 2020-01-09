@@ -1,20 +1,19 @@
-| Event                          | Payload                              |
-| :----------------------------- | :----------------------------------- |
-| startSession                   | sessionId, capabilities              |
-| command                        | url, method, requestBody?, requestId |
-| command:success                | responseBody, requestId              |
-| command:success:requestId      | responseBody                         |
-| command:fail                   | requestId, error                     |
-| command:fail:requestId         | error                                |
-| endSession                     | sessionId                            |
-| endSession:sessionId           |                                      |
-| findElement                    | by, requestId                        |
-| findElement:success            | elementId, requestId                 |
-| findElement:success:requestId  | elementId                            |
-| findElement:fail               | error, requestId                     |
-| findElement:fail:requestId     | error                                |
-| findElements                   | by, requestId                        |
-| findElements:success           | [...elementIds], requestId           |
-| findElements:success:requestId | [...elementIds]                      |
-| findElements:fail              | error, requestId                     |
-| findElements:fail:requestId    | error                                |
+| Event                           | Payload                             |
+| :------------------------------ | :---------------------------------- |
+| sessionStart                    | capabilities                        |
+| sessionStart:success            | sessionId                           |
+| sessionStart:failure            | error                               |
+| sessionEnd                      | sessionId                           |
+| command                         | url, method, requestBody?           |
+| command:success                 | responseBody, response, url, method |
+| command:fail                    | response, error                     |
+| findElement                     | by                                  |
+| findElement:success             | by, elementId                       |
+| findElement:fail                | by                                  |
+| findElementFromElement          | fromElementId, by                   |
+| findElementFromElement:success  | fromElementId, by, elementId        |
+| findElementFromElement:fail     | fromElementId, by                   |
+| findElements                    | by                                  |
+| findElements:success            | by, [...elementIds]                 |
+| findElementsFromElement         | fromElementId, by                   |
+| findElementsFromElement:success | fromElementId, by, [...elementIds]  |
