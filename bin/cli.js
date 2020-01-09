@@ -36,6 +36,10 @@ function registerOutputHandlers(driver) {
   driver.on("command:success", body => {
     console.log(`DATA: ${JSON.stringify(body)}`);
   });
+
+  driver.on("command:fail", error => {
+    console.log(`ERROR: ${error.message}`);
+  });
 }
 
 class LoginForm extends WebElement {

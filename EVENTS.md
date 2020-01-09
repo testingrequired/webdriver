@@ -10,7 +10,7 @@
 | `sessionEnd`                      | `sessionId`                                 |
 | `command`                         | `url`, `method`, `requestBody`?             |
 | `command:success`                 | `responseBody`, `response`, `url`, `method` |
-| `command:fail`                    | `response`, `error`                         |
+| `command:fail`                    | `error`, `response`                         |
 | `findElement`                     | `by`                                        |
 | `findElement:success`             | `by`, `elementId`                           |
 | `findElement:fail`                | `by`                                        |

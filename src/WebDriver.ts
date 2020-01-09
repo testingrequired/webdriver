@@ -95,7 +95,7 @@ export default class WebDriver extends EventEmitter {
     if (!res.ok) {
       const error = new Error(await res.text());
 
-      this.emit("command:fail", res, error);
+      this.emit("command:fail", error, res);
 
       throw error;
     }
