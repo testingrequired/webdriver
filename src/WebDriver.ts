@@ -104,16 +104,16 @@ export default class WebDriver extends EventEmitter {
     delete this._sessionId;
   }
 
-  async url(url: string) {
-    await this.sessionCommand("/url", "POST", { url });
+  url(url: string) {
+    return this.sessionCommand("/url", "POST", { url });
   }
 
-  async closeWindow() {
-    await this.sessionCommand("/window", "DELETE");
+  closeWindow() {
+    return this.sessionCommand("/window", "DELETE");
   }
 
-  async executeScript(script: string, ...args: Array<string>) {
-    await this.sessionCommand(`/execute/sync`, "POST", { script, args });
+  executeScript(script: string, ...args: Array<string>) {
+    return this.sessionCommand(`/execute/sync`, "POST", { script, args });
   }
 
   executeFunction(fn: Function, ...args: Array<string>) {
@@ -213,12 +213,12 @@ export default class WebDriver extends EventEmitter {
     return result.value;
   }
 
-  async clickElement(elementId: string) {
-    await this.sessionCommand(`/element/${elementId}/click`, "POST");
+  clickElement(elementId: string) {
+    return this.sessionCommand(`/element/${elementId}/click`, "POST");
   }
 
-  async sendKeysElement(elementId: string, text: string) {
-    await this.sessionCommand(`/element/${elementId}/value`, "POST", {
+  sendKeysElement(elementId: string, text: string) {
+    return this.sessionCommand(`/element/${elementId}/value`, "POST", {
       text,
       value: text.split("")
     });
