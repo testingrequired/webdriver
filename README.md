@@ -64,7 +64,7 @@ class LoginForm extends WebElement {
 
 ## Why?
 
-There are plenty of webdriver/selenium solutions out there: webdriver.io, selenium-webdriver, cypress. All of them had aspects of their APIs that created friction. This aims to address those issues and implement new features on top of the webdriver spec.
+There are plenty of solutions out there: webdriver.io, selenium-webdriver, cypress. All of them had aspects of their APIs that created friction. This aims to address those issues and implement new features on top of the webdriver spec.
 
 ### Goals
 
