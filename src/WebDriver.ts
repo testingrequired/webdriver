@@ -28,6 +28,10 @@ export default class WebDriver extends EventEmitter {
     return this._sessionId;
   }
 
+  get capabilities() {
+    return this.options.desiredCapabilities;
+  }
+
   async command<T extends CommandResponse>(
     command: string,
     method: string,

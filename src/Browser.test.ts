@@ -26,6 +26,26 @@ describe("Browser", () => {
     jest.clearAllMocks();
   });
 
+  describe("build", () => {
+    it("should create browser", () => {
+      expect(
+        Browser.build({ remoteUrl: "", desiredCapabilities: {} }, {}, () => {})
+      ).toBeInstanceOf(Browser);
+    });
+  });
+
+  describe("chrome", () => {
+    it("should create chrome browser", () => {
+      const browser = Browser.chrome(
+        { remoteUrl: "", desiredCapabilities: {} },
+        {},
+        () => {}
+      );
+
+      expect(browser.driver.capabilities.browserName).toBe("chrome");
+    });
+  });
+
   describe("findElement", () => {
     const expectedElementId = "expectedElementId";
     let element: WebElement;
