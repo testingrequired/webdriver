@@ -89,48 +89,71 @@ describe("WebDriver", () => {
           const by = new By(strategy, selector);
           let findElementEventSpy: jest.Mock;
           let findElementSuccessEventSpy: jest.Mock;
+          let findElementFailEventSpy: jest.Mock;
           let elementId: string | undefined;
 
-          beforeEach(async () => {
+          beforeEach(() => {
             findElementEventSpy = jest.fn();
             driver.on("findElement", findElementEventSpy);
             findElementSuccessEventSpy = jest.fn();
             driver.on("findElement:success", findElementSuccessEventSpy);
+            findElementFailEventSpy = jest.fn();
+            driver.on("findElement:fail", findElementFailEventSpy);
+          });
 
-            response = mockJsonResponse({
-              value: { ELEMENT: expectedElementId }
+          describe("when successful", () => {
+            beforeEach(async () => {
+              response = mockJsonResponse({
+                value: { ELEMENT: expectedElementId }
+              });
+
+              (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+                response
+              );
+
+              elementId = await driver.findElement(by);
             });
 
-            (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-              response
-            );
+            it("should make request to webdriver", async () => {
+              expect(fetch).toBeCalledWith(
+                "remoteUrl/session/expectedSessionId/element",
+                {
+                  body: `{"using":"${strategy}","value":"${selector}"}`,
+                  method: "POST"
+                }
+              );
+            });
 
-            elementId = await driver.findElement(by);
+            it("should return element id", async () => {
+              expect(elementId).toBe(expectedElementId);
+            });
+
+            it("should emit findElement event", () => {
+              expect(findElementEventSpy).toBeCalledWith(by);
+            });
+
+            it("should emit findElement:success event", () => {
+              expect(findElementSuccessEventSpy).toBeCalledWith(
+                by,
+                expectedElementId
+              );
+            });
           });
 
-          it("should make request to webdriver", async () => {
-            expect(fetch).toBeCalledWith(
-              "remoteUrl/session/expectedSessionId/element",
-              {
-                body: `{"using":"${strategy}","value":"${selector}"}`,
-                method: "POST"
-              }
-            );
-          });
+          describe("when failed", () => {
+            beforeEach(async () => {
+              response = mockJsonResponse({});
 
-          it("should return element id", async () => {
-            expect(elementId).toBe(expectedElementId);
-          });
+              (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+                response
+              );
 
-          it("should emit findElement event", () => {
-            expect(findElementEventSpy).toBeCalledWith(by);
-          });
+              await driver.findElement(by);
+            });
 
-          it("should emit findElement:successEvent", () => {
-            expect(findElementSuccessEventSpy).toBeCalledWith(
-              by,
-              expectedElementId
-            );
+            it("should emit findElement:fail event", () => {
+              expect(findElementFailEventSpy).toBeCalledWith(by);
+            });
           });
         });
 

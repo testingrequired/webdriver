@@ -160,7 +160,10 @@ export default class WebDriver extends EventEmitter {
       by
     );
 
-    if (!result.value) return;
+    if (!result.value) {
+      this.emit("findElementFromElement:fail", fromElementId, by);
+      return;
+    }
 
     const elementId = result.value.ELEMENT;
 
