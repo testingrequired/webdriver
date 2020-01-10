@@ -22,7 +22,6 @@ export default class Browser {
     timeoutsConfig?: TimeoutsConfig,
     registerHandlers?: (driver: WebDriver) => void
   ) {
-    debugger;
     const driver = new WebDriver(options, timeoutsConfig, registerHandlers);
     return new Browser(driver);
   }

@@ -19,8 +19,6 @@ export default class WebDriver extends EventEmitter {
   ) {
     super();
 
-    debugger;
-
     if (registerHandlers) {
       registerHandlers(this);
     }
