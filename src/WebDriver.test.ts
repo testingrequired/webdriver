@@ -12,13 +12,73 @@ describe("WebDriver", () => {
   };
   let driver: WebDriver;
   let response: Response;
+  let registerHandlersSpy: jest.Mock;
 
   beforeEach(async () => {
-    driver = new WebDriver(webdriverOptions);
+    registerHandlersSpy = jest.fn();
+    driver = new WebDriver(webdriverOptions, {}, registerHandlersSpy);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe("registerHandlers", () => {
+    it("should be called", () => {
+      expect(registerHandlersSpy).toBeCalledWith(driver);
+    });
+  });
+
+  describe("command", () => {
+    const expectedUrl = "expectedUrl";
+    const expectedMethod = "GET";
+    let commandEndEventSpy: jest.Mock;
+
+    beforeEach(() => {
+      commandEndEventSpy = jest.fn();
+      driver.on("command:end", commandEndEventSpy);
+    });
+
+    describe("when fails", () => {
+      const expectedResponseText = "Test";
+      let commandFailEventSpy: jest.Mock;
+
+      beforeEach(async () => {
+        commandFailEventSpy = jest.fn();
+        driver.on("command:fail", commandFailEventSpy);
+
+        response = mockFailResponse(expectedResponseText);
+
+        (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+          response
+        );
+
+        try {
+          await driver.command(expectedUrl, expectedMethod, {});
+        } catch (e) {}
+      });
+
+      it("should emit command:fail event", () => {
+        expect(commandFailEventSpy).toBeCalledWith(expect.any(Error), response);
+      });
+
+      it("should emit command:end event", () => {
+        expect(commandEndEventSpy).toBeCalledWith(
+          response,
+          "remoteUrl" + expectedUrl,
+          expectedMethod
+        );
+      });
+
+      it("should throw error with response text", async () => {
+        try {
+          await driver.command(expectedUrl, expectedMethod, {});
+          fail("Did not throw error");
+        } catch (e) {
+          expect(e.message).toBe(expectedResponseText);
+        }
+      });
+    });
   });
 
   describe("session", () => {
@@ -598,6 +658,16 @@ function mockJsonResponse(body: any) {
   response.text = jest.fn();
 
   response.ok = true;
+
+  return response;
+}
+
+function mockFailResponse(text: string) {
+  const response = new Response();
+
+  response.text = jest.fn(async () => text);
+
+  response.ok = false;
 
   return response;
 }
