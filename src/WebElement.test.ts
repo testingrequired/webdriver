@@ -118,4 +118,23 @@ describe("WebElement", () => {
       );
     });
   });
+
+  describe("executeFunction", () => {
+    let spy: jest.Mock;
+
+    beforeEach(async () => {
+      browser.driver.executeFunction = jest.fn();
+      spy = jest.fn();
+      await element.executeFunction(spy, "foo", "bar");
+    });
+
+    it("should call driver", async () => {
+      expect(browser.driver.executeFunction).toBeCalledWith(
+        spy,
+        by.value,
+        "foo",
+        "bar"
+      );
+    });
+  });
 });
