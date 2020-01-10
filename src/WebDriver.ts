@@ -28,57 +28,6 @@ export default class WebDriver extends EventEmitter {
     return this._sessionId;
   }
 
-  async executeScript(script: string, ...args: Array<string>) {
-    await this.sessionCommand(`/execute/sync`, "POST", { script, args });
-  }
-
-  executeFunction(fn: Function, ...args: Array<string>) {
-    return this.executeScript(
-      `return (${fn.toString()}).apply(null, arguments)`,
-      ...args
-    );
-  }
-
-  setTimeouts(config: TimeoutsConfig) {
-    return this.sessionCommand("/timeouts", "POST", config);
-  }
-
-  async newSession() {
-    const { desiredCapabilities } = this.options;
-
-    this.emit("sessionStart", desiredCapabilities);
-
-    const result = await this.command<NewSessionResponse>("/session", "POST", {
-      desiredCapabilities
-    });
-
-    if (!result.sessionId) {
-      const error = new Error(
-        `Error creating session: ${JSON.stringify(result)}`
-      );
-
-      this.emit("sessionStart:fail", error);
-
-      throw error;
-    }
-
-    this._sessionId = result.sessionId;
-
-    this.emit("sessionStart:success", this.sessionId);
-
-    await this.setTimeouts(this.timeoutsConfig);
-
-    return result;
-  }
-
-  async deleteSession() {
-    await this.command(`/session/${this.sessionId}`, "DELETE");
-
-    this.emit("sessionEnd", this.sessionId);
-
-    delete this._sessionId;
-  }
-
   async command<T extends CommandResponse>(
     command: string,
     method: string,
@@ -117,6 +66,65 @@ export default class WebDriver extends EventEmitter {
       method,
       body
     );
+  }
+
+  async newSession() {
+    const { desiredCapabilities } = this.options;
+
+    this.emit("sessionStart", desiredCapabilities);
+
+    const result = await this.command<NewSessionResponse>("/session", "POST", {
+      desiredCapabilities
+    });
+
+    if (!result.sessionId) {
+      const error = new Error(
+        `Error creating session: ${JSON.stringify(result)}`
+      );
+
+      this.emit("sessionStart:fail", error);
+
+      throw error;
+    }
+
+    this._sessionId = result.sessionId;
+
+    this.emit("sessionStart:success", this.sessionId);
+
+    await this.setTimeouts(this.timeoutsConfig);
+
+    return result;
+  }
+
+  async deleteSession() {
+    await this.command(`/session/${this.sessionId}`, "DELETE");
+
+    this.emit("sessionEnd", this.sessionId);
+
+    delete this._sessionId;
+  }
+
+  async url(url: string) {
+    await this.sessionCommand("/url", "POST", { url });
+  }
+
+  async closeWindow() {
+    await this.sessionCommand("/window", "DELETE");
+  }
+
+  async executeScript(script: string, ...args: Array<string>) {
+    await this.sessionCommand(`/execute/sync`, "POST", { script, args });
+  }
+
+  executeFunction(fn: Function, ...args: Array<string>) {
+    return this.executeScript(
+      `return (${fn.toString()}).apply(null, arguments)`,
+      ...args
+    );
+  }
+
+  setTimeouts(config: TimeoutsConfig) {
+    return this.sessionCommand("/timeouts", "POST", config);
   }
 
   async findElement(by: By): Promise<string | undefined> {
@@ -207,14 +215,6 @@ export default class WebDriver extends EventEmitter {
 
   async clickElement(elementId: string) {
     await this.sessionCommand(`/element/${elementId}/click`, "POST");
-  }
-
-  async url(url: string) {
-    await this.sessionCommand("/url", "POST", { url });
-  }
-
-  async closeWindow() {
-    await this.sessionCommand("/window", "DELETE");
   }
 
   async sendKeysElement(elementId: string, text: string) {
