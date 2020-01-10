@@ -62,10 +62,19 @@ class LoginForm extends WebElement {
 }
 ```
 
-## Goals
+## Why?
 
-- Use real promises
-- First class page objects
+There are plenty of webdriver/selenium solutions out there: webdriver.io, selenium-webdriver, cypress. All of them had aspects of their APIs that created friction. This aims to address those issues and implement new features on top of the webdriver spec.
+
+### Goals
+
+#### ES6 Promises
+
+Use standard promises for asynchronous actions.
+
+#### First Class Page Objects
+
+All element query methods `findElement`, `$$`, etc... accept classes extending `WebElement` allowing them to be treated like page objects.
 
 ## Development
 
