@@ -179,7 +179,10 @@ export default class WebDriver extends EventEmitter {
       CommandResponse<Array<ElementIdValue>>
     >("/elements", "POST", by);
 
-    if (!result.value) return [];
+    if (!result.value) {
+      this.emit("findElements:fail", by);
+      return [];
+    }
 
     const elementIds = result.value.map(v => v.ELEMENT);
 
@@ -198,7 +201,10 @@ export default class WebDriver extends EventEmitter {
       CommandResponse<Array<ElementIdValue>>
     >(`/element/${fromElementId}/elements`, "POST", by);
 
-    if (!result.value) return [];
+    if (!result.value) {
+      this.emit("findElementsFromElement:fail", by);
+      return [];
+    }
 
     const elementIds = result.value.map(v => v.ELEMENT);
 
