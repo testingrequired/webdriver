@@ -31,7 +31,7 @@ import { Browser, WebElement, Events } from "@testingrequired/webdriver";
   await browser.session(async () => {
     await browser.go("https://exampletest.app/user");
 
-    await (await browser.$("#loginForm", LoginForm)).fillAndSubmit(
+    await (await browser.$("#loginForm", LoginForm)).login(
       "testUser",
       "password"
     );
@@ -46,7 +46,7 @@ import { Browser, WebElement, Events } from "@testingrequired/webdriver";
 
     await browser.go("https://exampletest.app/user");
 
-    await (await browser.$("#loginForm", LoginForm)).fillAndSubmit(
+    await (await browser.$("#loginForm", LoginForm)).login(
       "testUser",
       "password"
     );
@@ -70,7 +70,7 @@ class LoginForm extends WebElement {
     return this.$("#loginButton");
   }
 
-  async fillAndSubmit(username, password) {
+  async login(username, password) {
     await (await this.username).sendKeys(username);
     await (await this.password).sendKeys(password);
     await (await this.loginButton).click();
