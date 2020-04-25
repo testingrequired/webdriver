@@ -26,21 +26,21 @@ import { Browser, WebElement, Events } from "@testingrequired/webdriver";
   const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
   const timeoutsConfig = { implicit: 5000 };
 
-  const browser = Browser.chrome(webdriverOptions, timeoutsConfig, (driver) => {
-    driver.on(Events.FindElement, (by) => {
-      console.log(`Looking for element by: ${by.using} ${by.value}`);
-    });
+  const browser = Browser.chrome(webdriverOptions, timeoutsConfig);
 
-    driver.on(Events.FindElementSuccess, (by) => {
-      console.log(`Element found by: ${by.using} ${by.value}`);
-    });
+  await browser.session(async () => {
+    await browser.go("https://exampletest.app/user");
 
-    driver.on(Events.FindElementFail, (by) => {
-      console.log(`Element not found by: ${by.using} ${by.value}`);
-    });
+    const loginForm = await browser.$("#loginForm", LoginForm);
+
+    await loginForm.fillAndSubmit("testUser", "password");
+
+    const h3 = await browser.$("h3");
+
+    assert.strictEqual(await h3.text(), "Timeline");
   });
 
-  // Manual session management
+  // Or manually manage webdriver sessions
 
   try {
     await browser.driver.newSession();
@@ -57,20 +57,6 @@ import { Browser, WebElement, Events } from "@testingrequired/webdriver";
   } finally {
     await browser.driver.deleteSession();
   }
-
-  // Automatic session management
-
-  await browser.session(async () => {
-    await browser.go("https://exampletest.app/user");
-
-    const loginForm = await browser.$("#loginForm", LoginForm);
-
-    await loginForm.fillAndSubmit("testUser", "password");
-
-    const h3 = await browser.$("h3");
-
-    assert.strictEqual(await h3.text(), "Timeline");
-  });
 })();
 
 class LoginForm extends WebElement {
