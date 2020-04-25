@@ -60,12 +60,12 @@ export default class WebDriver extends EventEmitter {
     return data;
   }
 
-  async sessionCommand<T extends CommandResponse>(
+  sessionCommand<T extends CommandResponse>(
     command: string,
     method: string,
     body?: any
   ) {
-    return await this.command<T>(
+    return this.command<T>(
       `/session/${this.sessionId}${command}`,
       method,
       body
@@ -78,7 +78,7 @@ export default class WebDriver extends EventEmitter {
     this.emit("sessionStart", desiredCapabilities);
 
     const result = await this.command<NewSessionResponse>("/session", "POST", {
-      desiredCapabilities
+      desiredCapabilities,
     });
 
     if (!result.sessionId) {
@@ -188,7 +188,7 @@ export default class WebDriver extends EventEmitter {
       return [];
     }
 
-    const elementIds = result.value.map(v => v.ELEMENT);
+    const elementIds = result.value.map((v) => v.ELEMENT);
 
     this.emit("findElements:success", by, elementIds);
 
@@ -210,7 +210,7 @@ export default class WebDriver extends EventEmitter {
       return [];
     }
 
-    const elementIds = result.value.map(v => v.ELEMENT);
+    const elementIds = result.value.map((v) => v.ELEMENT);
 
     this.emit("findElementsFromElement:success", fromElementId, by, elementIds);
 
@@ -233,7 +233,7 @@ export default class WebDriver extends EventEmitter {
   sendKeysElement(elementId: string, text: string) {
     return this.sessionCommand(`/element/${elementId}/value`, "POST", {
       text,
-      value: text.split("")
+      value: text.split(""),
     });
   }
 }
