@@ -20,25 +20,57 @@ $ npm i @testingrequired/webdriver@latest
 
 ```javascript
 import assert from "assert";
-import { Browser, WebElement } from "@testingrequired/webdriver";
+import { Browser, WebElement, Events } from "@testingrequired/webdriver";
 
 (async () => {
   const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
   const timeoutsConfig = { implicit: 5000 };
 
-  await Browser.chrome(webdriverOptions, timeoutsConfig).session(
-    async browser => {
-      await browser.go("https://exampletest.app/user");
+  const browser = Browser.chrome(webdriverOptions, timeoutsConfig, (driver) => {
+    driver.on(Events.FindElement, (by) => {
+      console.log(`Looking for element by: ${by.using} ${by.value}`);
+    });
 
-      const loginForm = await browser.$("#loginForm", LoginForm);
+    driver.on(Events.FindElementSuccess, (by) => {
+      console.log(`Element found by: ${by.using} ${by.value}`);
+    });
 
-      await loginForm.fillAndSubmit("testUser", "password");
+    driver.on(Events.FindElementFail, (by) => {
+      console.log(`Element not found by: ${by.using} ${by.value}`);
+    });
+  });
 
-      const h3 = await browser.$("h3");
+  // Manual session management
 
-      assert.strictEqual(await h3.text(), "Timeline");
-    }
-  );
+  try {
+    await browser.driver.newSession();
+
+    await browser.go("https://exampletest.app/user");
+
+    const loginForm = await browser.$("#loginForm", LoginForm);
+
+    await loginForm.fillAndSubmit("testUser", "password");
+
+    const h3 = await browser.$("h3");
+
+    assert.strictEqual(await h3.text(), "Timeline");
+  } finally {
+    await browser.driver.deleteSession();
+  }
+
+  // Automatic session management
+
+  await browser.session(async () => {
+    await browser.go("https://exampletest.app/user");
+
+    const loginForm = await browser.$("#loginForm", LoginForm);
+
+    await loginForm.fillAndSubmit("testUser", "password");
+
+    const h3 = await browser.$("h3");
+
+    assert.strictEqual(await h3.text(), "Timeline");
+  });
 })();
 
 class LoginForm extends WebElement {
@@ -61,10 +93,6 @@ class LoginForm extends WebElement {
   }
 }
 ```
-
-## Why?
-
-There are plenty of solutions out there: webdriver.io, selenium-webdriver, cypress. All of them had aspects of their APIs that created friction. This aims to address those issues and implement new features on top of the webdriver spec.
 
 ### Goals
 

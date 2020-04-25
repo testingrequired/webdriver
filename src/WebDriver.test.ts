@@ -2,13 +2,14 @@ import WebDriver from "./WebDriver";
 import { By } from "./By";
 import fetch, { Response } from "node-fetch";
 import WebdriverOptions from "./WebdriverOptions";
+import { Events } from "./events";
 
 jest.mock("node-fetch");
 
 describe("WebDriver", () => {
   const webdriverOptions: WebdriverOptions = {
     remoteUrl: "remoteUrl",
-    desiredCapabilities: {}
+    desiredCapabilities: {},
   };
   let driver: WebDriver;
   let response: Response;
@@ -36,7 +37,7 @@ describe("WebDriver", () => {
 
     beforeEach(() => {
       commandEndEventSpy = jest.fn();
-      driver.on("command:end", commandEndEventSpy);
+      driver.on(Events.CommandEnd, commandEndEventSpy);
     });
 
     describe("when fails", () => {
@@ -45,7 +46,7 @@ describe("WebDriver", () => {
 
       beforeEach(async () => {
         commandFailEventSpy = jest.fn();
-        driver.on("command:fail", commandFailEventSpy);
+        driver.on(Events.CommandFail, commandFailEventSpy);
 
         response = mockFailResponse(expectedResponseText);
 
@@ -88,7 +89,7 @@ describe("WebDriver", () => {
 
       beforeEach(async () => {
         sessionStartEventSpy = jest.fn();
-        driver.on("sessionStart", sessionStartEventSpy);
+        driver.on(Events.Session, sessionStartEventSpy);
 
         response = mockJsonResponse({ sessionId });
 
@@ -106,7 +107,7 @@ describe("WebDriver", () => {
       it("should make request to webdriver", () => {
         expect(fetch).toBeCalledWith(`remoteUrl/session`, {
           method: "POST",
-          body: '{"desiredCapabilities":{}}'
+          body: '{"desiredCapabilities":{}}',
         });
       });
 
@@ -121,7 +122,7 @@ describe("WebDriver", () => {
 
         beforeEach(async () => {
           sessionEndEventSpy = jest.fn();
-          driver.on("sessionEnd", sessionEndEventSpy);
+          driver.on(Events.SessionEnd, sessionEndEventSpy);
           await driver.deleteSession();
         });
 
@@ -131,7 +132,7 @@ describe("WebDriver", () => {
 
         it("should make request to webdriver", () => {
           expect(fetch).toBeCalledWith(`remoteUrl/session/${sessionId}`, {
-            method: "DELETE"
+            method: "DELETE",
           });
         });
 
@@ -154,17 +155,17 @@ describe("WebDriver", () => {
 
           beforeEach(() => {
             findElementEventSpy = jest.fn();
-            driver.on("findElement", findElementEventSpy);
+            driver.on(Events.FindElement, findElementEventSpy);
             findElementSuccessEventSpy = jest.fn();
-            driver.on("findElement:success", findElementSuccessEventSpy);
+            driver.on(Events.FindElementSuccess, findElementSuccessEventSpy);
             findElementFailEventSpy = jest.fn();
-            driver.on("findElement:fail", findElementFailEventSpy);
+            driver.on(Events.FindElementFail, findElementFailEventSpy);
           });
 
           describe("when successful", () => {
             beforeEach(async () => {
               response = mockJsonResponse({
-                value: { ELEMENT: expectedElementId }
+                value: { ELEMENT: expectedElementId },
               });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
@@ -179,7 +180,7 @@ describe("WebDriver", () => {
                 "remoteUrl/session/expectedSessionId/element",
                 {
                   body: `{"using":"${strategy}","value":"${selector}"}`,
-                  method: "POST"
+                  method: "POST",
                 }
               );
             });
@@ -229,20 +230,23 @@ describe("WebDriver", () => {
 
           beforeEach(async () => {
             findElementEventSpy = jest.fn();
-            driver.on("findElementFromElement", findElementEventSpy);
+            driver.on(Events.FindElementFromElement, findElementEventSpy);
             findElementSuccessEventSpy = jest.fn();
             driver.on(
-              "findElementFromElement:success",
+              Events.FindElementFromElementSuccess,
               findElementSuccessEventSpy
             );
             findElementFailEventSpy = jest.fn();
-            driver.on("findElementFromElement:fail", findElementFailEventSpy);
+            driver.on(
+              Events.FindElementFromElementFail,
+              findElementFailEventSpy
+            );
           });
 
           describe("when successful", () => {
             beforeEach(async () => {
               response = mockJsonResponse({
-                value: { ELEMENT: expectedElementId }
+                value: { ELEMENT: expectedElementId },
               });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
@@ -260,7 +264,7 @@ describe("WebDriver", () => {
                 `remoteUrl/session/expectedSessionId/element/${fromElementId}/element`,
                 {
                   body: `{"using":"${strategy}","value":"${selector}"}`,
-                  method: "POST"
+                  method: "POST",
                 }
               );
             });
@@ -305,7 +309,7 @@ describe("WebDriver", () => {
           const by = new By(strategy, selector);
           const expectedElementIds = [
             "expectedElementId",
-            "expectedElementId2"
+            "expectedElementId2",
           ];
           let findElementsEventSpy: jest.Mock;
           let findElementsSuccessEventSpy: jest.Mock;
@@ -314,17 +318,17 @@ describe("WebDriver", () => {
 
           beforeEach(() => {
             findElementsEventSpy = jest.fn();
-            driver.on("findElements", findElementsEventSpy);
+            driver.on(Events.FindElements, findElementsEventSpy);
             findElementsSuccessEventSpy = jest.fn();
-            driver.on("findElements:success", findElementsSuccessEventSpy);
+            driver.on(Events.FindElementsSuccess, findElementsSuccessEventSpy);
             findElementsFailEventSpy = jest.fn();
-            driver.on("findElements:fail", findElementsFailEventSpy);
+            driver.on(Events.FindElementsFail, findElementsFailEventSpy);
           });
 
           describe("when successful", () => {
             beforeEach(async () => {
               response = mockJsonResponse({
-                value: expectedElementIds.map(ELEMENT => ({ ELEMENT }))
+                value: expectedElementIds.map((ELEMENT) => ({ ELEMENT })),
               });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
@@ -339,7 +343,7 @@ describe("WebDriver", () => {
                 "remoteUrl/session/expectedSessionId/elements",
                 {
                   body: `{"using":"${strategy}","value":"${selector}"}`,
-                  method: "POST"
+                  method: "POST",
                 }
               );
             });
@@ -384,7 +388,7 @@ describe("WebDriver", () => {
           const by = new By(strategy, selector);
           const expectedElementIds = [
             "expectedElementId",
-            "expectedElementId2"
+            "expectedElementId2",
           ];
           let findElementsFromElementEventSpy: jest.Mock;
           let findElementsFromElementSuccessEventSpy: jest.Mock;
@@ -394,22 +398,25 @@ describe("WebDriver", () => {
           beforeEach(() => {
             findElementsFromElementEventSpy = jest.fn();
             driver.on(
-              "findElementsFromElement",
+              Events.FindElementsFromElement,
               findElementsFromElementEventSpy
             );
             findElementsFromElementSuccessEventSpy = jest.fn();
             driver.on(
-              "findElementsFromElement:success",
+              Events.FindElementsFromElementSuccess,
               findElementsFromElementSuccessEventSpy
             );
             findElementsFailEventSpy = jest.fn();
-            driver.on("findElementsFromElement:fail", findElementsFailEventSpy);
+            driver.on(
+              Events.FindElementsFromElementFail,
+              findElementsFailEventSpy
+            );
           });
 
           describe("when successful", () => {
             beforeEach(async () => {
               response = mockJsonResponse({
-                value: expectedElementIds.map(ELEMENT => ({ ELEMENT }))
+                value: expectedElementIds.map((ELEMENT) => ({ ELEMENT })),
               });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
@@ -427,7 +434,7 @@ describe("WebDriver", () => {
                 `remoteUrl/session/expectedSessionId/element/${fromElementId}/elements`,
                 {
                   body: `{"using":"${strategy}","value":"${selector}"}`,
-                  method: "POST"
+                  method: "POST",
                 }
               );
             });
@@ -481,7 +488,7 @@ describe("WebDriver", () => {
 
           beforeEach(async () => {
             response = mockJsonResponse({
-              value: { ELEMENT: expectedElementId }
+              value: { ELEMENT: expectedElementId },
             });
 
             (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
@@ -501,7 +508,7 @@ describe("WebDriver", () => {
             expect(fetch).toBeCalledWith(
               "remoteUrl/session/expectedSessionId/element/expectedElementId/text",
               {
-                method: "GET"
+                method: "GET",
               }
             );
           });
@@ -514,7 +521,7 @@ describe("WebDriver", () => {
             expect(fetch).toBeCalledWith(
               "remoteUrl/session/expectedSessionId/element/expectedElementId/click",
               {
-                method: "POST"
+                method: "POST",
               }
             );
           });
@@ -530,7 +537,7 @@ describe("WebDriver", () => {
             "remoteUrl/session/expectedSessionId/url",
             {
               body: `{"url":"${expectedUrl}"}`,
-              method: "POST"
+              method: "POST",
             }
           );
         });
@@ -543,7 +550,7 @@ describe("WebDriver", () => {
           expect(fetch).toBeCalledWith(
             "remoteUrl/session/expectedSessionId/window",
             {
-              method: "DELETE"
+              method: "DELETE",
             }
           );
         });
@@ -560,7 +567,7 @@ describe("WebDriver", () => {
             `remoteUrl/session/expectedSessionId/element/${expectedElementId}/value`,
             {
               method: "POST",
-              body: JSON.stringify({ text, value: text.split("") })
+              body: JSON.stringify({ text, value: text.split("") }),
             }
           );
         });
@@ -577,15 +584,15 @@ describe("WebDriver", () => {
               method: "POST",
               body: JSON.stringify({
                 script: expectedScript,
-                args: []
-              })
+                args: [],
+              }),
             }
           );
         });
       });
 
       describe("executeFunction", () => {
-        const expectedScript = function() {
+        const expectedScript = function () {
           return true;
         };
 
@@ -599,8 +606,8 @@ describe("WebDriver", () => {
               body: JSON.stringify({
                 script:
                   "return (function () {\n                    return true;\n                }).apply(null, arguments)",
-                args: []
-              })
+                args: [],
+              }),
             }
           );
         });
@@ -614,7 +621,7 @@ describe("WebDriver", () => {
             "remoteUrl/session/expectedSessionId/timeouts",
             {
               body: `{}`,
-              method: "POST"
+              method: "POST",
             }
           );
         });

@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import { By } from "./By";
 import WebdriverOptions from "./WebdriverOptions";
 import { EventEmitter } from "events";
+import { Events } from "./events";
 
 export interface TimeoutsConfig {
   script?: number;
@@ -39,23 +40,23 @@ export default class WebDriver extends EventEmitter {
   ): Promise<T> {
     const url = `${this.options.remoteUrl}${command}`;
 
-    this.emit("command", url, method, body);
+    this.emit(Events.Command, url, method, body);
 
     const res = await fetch(url, { method, body: JSON.stringify(body) });
 
     if (!res.ok) {
       const error = new Error(await res.text());
 
-      this.emit("command:fail", error, res);
-      this.emit("command:end", res, url, method);
+      this.emit(Events.CommandFail, error, res);
+      this.emit(Events.CommandEnd, res, url, method);
 
       throw error;
     }
 
     const data: T = await res.json();
 
-    this.emit("command:success", data, res, url, method);
-    this.emit("command:end", res, url, method);
+    this.emit(Events.CommandSuccess, data, res, url, method);
+    this.emit(Events.CommandEnd, res, url, method);
 
     return data;
   }
@@ -75,7 +76,7 @@ export default class WebDriver extends EventEmitter {
   async newSession() {
     const { desiredCapabilities } = this.options;
 
-    this.emit("sessionStart", desiredCapabilities);
+    this.emit(Events.Session, desiredCapabilities);
 
     const result = await this.command<NewSessionResponse>("/session", "POST", {
       desiredCapabilities,
@@ -86,14 +87,14 @@ export default class WebDriver extends EventEmitter {
         `Error creating session: ${JSON.stringify(result)}`
       );
 
-      this.emit("sessionStart:fail", error);
+      this.emit(Events.SessionFail, error);
 
       throw error;
     }
 
     this._sessionId = result.sessionId;
 
-    this.emit("sessionStart:success", this.sessionId);
+    this.emit(Events.SessionSuccess, this.sessionId);
 
     await this.setTimeouts(this.timeoutsConfig);
 
@@ -103,7 +104,7 @@ export default class WebDriver extends EventEmitter {
   async deleteSession() {
     await this.command(`/session/${this.sessionId}`, "DELETE");
 
-    this.emit("sessionEnd", this.sessionId);
+    this.emit(Events.SessionEnd, this.sessionId);
 
     delete this._sessionId;
   }
@@ -132,7 +133,7 @@ export default class WebDriver extends EventEmitter {
   }
 
   async findElement(by: By): Promise<string | undefined> {
-    this.emit("findElement", by);
+    this.emit(Events.FindElement, by);
 
     const result = await this.sessionCommand<CommandResponse<ElementIdValue>>(
       "/element",
@@ -141,13 +142,13 @@ export default class WebDriver extends EventEmitter {
     );
 
     if (!result.value) {
-      this.emit("findElement:fail", by);
+      this.emit(Events.FindElementFail, by);
       return;
     }
 
     const elementId = result.value.ELEMENT;
 
-    this.emit("findElement:success", by, elementId);
+    this.emit(Events.FindElementSuccess, by, elementId);
 
     return elementId;
   }
@@ -156,7 +157,7 @@ export default class WebDriver extends EventEmitter {
     fromElementId: string,
     by: By
   ): Promise<string | undefined> {
-    this.emit("findElementFromElement", fromElementId, by);
+    this.emit(Events.FindElementFromElement, fromElementId, by);
 
     const result = await this.sessionCommand<CommandResponse<ElementIdValue>>(
       `/element/${fromElementId}/element`,
@@ -165,32 +166,37 @@ export default class WebDriver extends EventEmitter {
     );
 
     if (!result.value) {
-      this.emit("findElementFromElement:fail", fromElementId, by);
+      this.emit(Events.FindElementFromElementFail, fromElementId, by);
       return;
     }
 
     const elementId = result.value.ELEMENT;
 
-    this.emit("findElementFromElement:success", fromElementId, by, elementId);
+    this.emit(
+      Events.FindElementFromElementSuccess,
+      fromElementId,
+      by,
+      elementId
+    );
 
     return elementId;
   }
 
   async findElements(by: By): Promise<Array<string>> {
-    this.emit("findElements", by);
+    this.emit(Events.FindElements, by);
 
     const result = await this.sessionCommand<
       CommandResponse<Array<ElementIdValue>>
     >("/elements", "POST", by);
 
     if (!result.value) {
-      this.emit("findElements:fail", by);
+      this.emit(Events.FindElementsFail, by);
       return [];
     }
 
     const elementIds = result.value.map((v) => v.ELEMENT);
 
-    this.emit("findElements:success", by, elementIds);
+    this.emit(Events.FindElementsSuccess, by, elementIds);
 
     return elementIds;
   }
@@ -199,20 +205,25 @@ export default class WebDriver extends EventEmitter {
     by: By,
     fromElementId: string
   ): Promise<Array<string>> {
-    this.emit("findElementsFromElement", by, fromElementId);
+    this.emit(Events.FindElementsFromElement, by, fromElementId);
 
     const result = await this.sessionCommand<
       CommandResponse<Array<ElementIdValue>>
     >(`/element/${fromElementId}/elements`, "POST", by);
 
     if (!result.value) {
-      this.emit("findElementsFromElement:fail", by);
+      this.emit(Events.FindElementsFromElementFail, by);
       return [];
     }
 
     const elementIds = result.value.map((v) => v.ELEMENT);
 
-    this.emit("findElementsFromElement:success", fromElementId, by, elementIds);
+    this.emit(
+      Events.FindElementsFromElementSuccess,
+      fromElementId,
+      by,
+      elementIds
+    );
 
     return elementIds;
   }
