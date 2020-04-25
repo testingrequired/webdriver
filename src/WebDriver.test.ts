@@ -48,7 +48,7 @@ describe("WebDriver", () => {
         commandFailEventSpy = jest.fn();
         driver.on(Events.CommandFail, commandFailEventSpy);
 
-        response = mockResponse(false, expectedResponseText);
+        response = mockResponse(false, { text: expectedResponseText });
 
         (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
           response
@@ -91,7 +91,7 @@ describe("WebDriver", () => {
         sessionStartEventSpy = jest.fn();
         driver.on(Events.Session, sessionStartEventSpy);
 
-        response = mockJsonResponse({ sessionId });
+        response = mockResponse(true, { body: { sessionId } });
 
         (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
           response
@@ -164,8 +164,8 @@ describe("WebDriver", () => {
 
           describe("when successful", () => {
             beforeEach(async () => {
-              response = mockJsonResponse({
-                value: { ELEMENT: expectedElementId },
+              response = mockResponse(true, {
+                body: { value: { ELEMENT: expectedElementId } },
               });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
@@ -203,7 +203,9 @@ describe("WebDriver", () => {
 
           describe("when failed", () => {
             beforeEach(async () => {
-              response = mockJsonResponse({});
+              response = mockResponse(true, {
+                body: {},
+              });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
                 response
@@ -245,8 +247,8 @@ describe("WebDriver", () => {
 
           describe("when successful", () => {
             beforeEach(async () => {
-              response = mockJsonResponse({
-                value: { ELEMENT: expectedElementId },
+              response = mockResponse(true, {
+                body: { value: { ELEMENT: expectedElementId } },
               });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
@@ -288,7 +290,9 @@ describe("WebDriver", () => {
 
           describe("when failed", () => {
             beforeEach(async () => {
-              response = mockJsonResponse({});
+              response = mockResponse(true, {
+                body: {},
+              });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
                 response
@@ -327,8 +331,10 @@ describe("WebDriver", () => {
 
           describe("when successful", () => {
             beforeEach(async () => {
-              response = mockJsonResponse({
-                value: expectedElementIds.map((ELEMENT) => ({ ELEMENT })),
+              response = mockResponse(true, {
+                body: {
+                  value: expectedElementIds.map((ELEMENT) => ({ ELEMENT })),
+                },
               });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
@@ -362,7 +368,9 @@ describe("WebDriver", () => {
 
           describe("when fail", () => {
             beforeEach(async () => {
-              response = mockJsonResponse({});
+              response = mockResponse(true, {
+                body: {},
+              });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
                 response
@@ -415,8 +423,10 @@ describe("WebDriver", () => {
 
           describe("when successful", () => {
             beforeEach(async () => {
-              response = mockJsonResponse({
-                value: expectedElementIds.map((ELEMENT) => ({ ELEMENT })),
+              response = mockResponse(true, {
+                body: {
+                  value: expectedElementIds.map((ELEMENT) => ({ ELEMENT })),
+                },
               });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
@@ -461,7 +471,9 @@ describe("WebDriver", () => {
 
           describe("when fail", () => {
             beforeEach(async () => {
-              response = mockJsonResponse({});
+              response = mockResponse(true, {
+                body: {},
+              });
 
               (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
                 response
@@ -487,15 +499,19 @@ describe("WebDriver", () => {
           const expectedText = "expectedText";
 
           beforeEach(async () => {
-            response = mockJsonResponse({
-              value: { ELEMENT: expectedElementId },
+            response = mockResponse(true, {
+              body: {
+                value: { ELEMENT: expectedElementId },
+              },
             });
 
             (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
               response
             );
 
-            const response2 = mockJsonResponse({ value: expectedText });
+            const response2 = mockResponse(true, {
+              body: { value: expectedText },
+            });
 
             (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
               response2
@@ -630,7 +646,7 @@ describe("WebDriver", () => {
 
     describe("when fails to create", () => {
       beforeEach(async () => {
-        response = mockJsonResponse({});
+        response = mockResponse(true, { body: {} });
 
         (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
           response
@@ -655,25 +671,20 @@ describe("WebDriver", () => {
   });
 });
 
-function mockJsonResponse(body: any) {
-  const response = new Response();
-
-  response.json = jest.fn(async () => {
-    return body;
-  });
-
-  response.text = jest.fn();
-
-  response.ok = true;
-
-  return response;
-}
-
-function mockResponse(ok: boolean, text?: string): Response {
+function mockResponse(
+  ok: boolean,
+  { text, body }: { text?: string; body?: any }
+): Response {
   const response = new Response();
 
   if (text) {
     response.text = jest.fn(async () => text);
+  }
+
+  if (body) {
+    response.json = jest.fn(async () => {
+      return body;
+    });
   }
 
   response.ok = ok;
