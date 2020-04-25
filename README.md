@@ -31,13 +31,12 @@ import { Browser, WebElement, Events } from "@testingrequired/webdriver";
   await browser.session(async () => {
     await browser.go("https://exampletest.app/user");
 
-    const loginForm = await browser.$("#loginForm", LoginForm);
+    await (await browser.$("#loginForm", LoginForm)).fillAndSubmit(
+      "testUser",
+      "password"
+    );
 
-    await loginForm.fillAndSubmit("testUser", "password");
-
-    const h3 = await browser.$("h3");
-
-    assert.strictEqual(await h3.text(), "Timeline");
+    assert.strictEqual(await (await browser.$("h3")).text(), "Timeline");
   });
 
   // Or manually manage webdriver sessions
@@ -47,13 +46,12 @@ import { Browser, WebElement, Events } from "@testingrequired/webdriver";
 
     await browser.go("https://exampletest.app/user");
 
-    const loginForm = await browser.$("#loginForm", LoginForm);
+    await (await browser.$("#loginForm", LoginForm)).fillAndSubmit(
+      "testUser",
+      "password"
+    );
 
-    await loginForm.fillAndSubmit("testUser", "password");
-
-    const h3 = await browser.$("h3");
-
-    assert.strictEqual(await h3.text(), "Timeline");
+    assert.strictEqual(await (await browser.$("h3")).text(), "Timeline");
   } finally {
     await browser.driver.deleteSession();
   }
