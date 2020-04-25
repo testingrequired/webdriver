@@ -40,6 +40,43 @@ describe("WebDriver", () => {
       driver.on(Events.CommandEnd, commandEndEventSpy);
     });
 
+    describe("when succeeds", () => {
+      const someObject = { foo: "bar" };
+      let commandSuccessEventSpy: jest.Mock;
+
+      beforeEach(async () => {
+        commandSuccessEventSpy = jest.fn();
+        driver.on(Events.CommandSuccess, commandSuccessEventSpy);
+
+        response = mockResponse(true, { body: someObject });
+
+        (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+          response
+        );
+
+        try {
+          await driver.command(expectedUrl, expectedMethod, {});
+        } catch (e) {}
+      });
+
+      it("should emit command:success event", () => {
+        expect(commandSuccessEventSpy).toBeCalledWith(
+          someObject,
+          response,
+          "remoteUrl" + expectedUrl,
+          expectedMethod
+        );
+      });
+
+      it("should emit command:end event", () => {
+        expect(commandEndEventSpy).toBeCalledWith(
+          response,
+          "remoteUrl" + expectedUrl,
+          expectedMethod
+        );
+      });
+    });
+
     describe("when fails", () => {
       const expectedResponseText = "Test";
       let commandFailEventSpy: jest.Mock;
