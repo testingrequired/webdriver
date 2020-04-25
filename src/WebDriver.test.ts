@@ -34,11 +34,15 @@ describe("WebDriver", () => {
     const expectedUrl = "expectedUrl";
     const expectedMethod = "GET";
 
+    let commandEventSpy: jest.Mock;
     let commandEndEventSpy: jest.Mock;
     let commandSuccessEventSpy: jest.Mock;
     let commandFailEventSpy: jest.Mock;
 
     beforeEach(() => {
+      commandEventSpy = jest.fn();
+      driver.on(Events.Command, commandEventSpy);
+
       commandEndEventSpy = jest.fn();
       driver.on(Events.CommandEnd, commandEndEventSpy);
 
@@ -47,6 +51,22 @@ describe("WebDriver", () => {
 
       commandFailEventSpy = jest.fn();
       driver.on(Events.CommandFail, commandFailEventSpy);
+    });
+
+    describe("when called", () => {
+      const body = { foo: "bar" };
+
+      it("should emit command event", async () => {
+        try {
+          await driver.command(expectedUrl, expectedMethod, body);
+        } catch (e) {}
+
+        expect(commandEventSpy).toBeCalledWith(
+          "remoteUrl" + expectedUrl,
+          expectedMethod,
+          body
+        );
+      });
     });
 
     describe("when succeeds", () => {
