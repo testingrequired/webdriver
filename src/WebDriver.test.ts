@@ -48,7 +48,7 @@ describe("WebDriver", () => {
         commandFailEventSpy = jest.fn();
         driver.on(Events.CommandFail, commandFailEventSpy);
 
-        response = mockFailResponse(expectedResponseText);
+        response = mockResponse(false, expectedResponseText);
 
         (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
           response
@@ -669,12 +669,14 @@ function mockJsonResponse(body: any) {
   return response;
 }
 
-function mockFailResponse(text: string) {
+function mockResponse(ok: boolean, text?: string): Response {
   const response = new Response();
 
-  response.text = jest.fn(async () => text);
+  if (text) {
+    response.text = jest.fn(async () => text);
+  }
 
-  response.ok = false;
+  response.ok = ok;
 
   return response;
 }
