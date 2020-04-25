@@ -15,7 +15,7 @@ export default class WebDriver extends EventEmitter {
 
   constructor(
     private options: WebdriverOptions,
-    private timeoutsConfig: TimeoutsConfig = {},
+    public timeoutsConfig: TimeoutsConfig = {},
     registerHandlers?: (driver: WebDriver) => void
   ) {
     super();
