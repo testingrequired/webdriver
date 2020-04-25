@@ -625,6 +625,19 @@ describe("WebDriver", () => {
         });
       });
 
+      describe("source", () => {
+        it("should make request to webdriver", async () => {
+          await driver.source();
+
+          expect(fetch).toBeCalledWith(
+            "remoteUrl/session/expectedSessionId/source",
+            {
+              method: "GET",
+            }
+          );
+        });
+      });
+
       describe("closeWindow", () => {
         it("should make request to webdriver", async () => {
           await driver.closeWindow();

@@ -38,7 +38,7 @@
 |      | POST   | /session/{session id}/element/{element id}/click               | Element Click              |
 |      | POST   | /session/{session id}/element/{element id}/clear               | Element Clear              |
 | x    | POST   | /session/{session id}/element/{element id}/value               | Element Send Keys          |
-|      | GET    | /session/{session id}/source                                   | Get Page Source            |
+| x    | GET    | /session/{session id}/source                                   | Get Page Source            |
 | x    | POST   | /session/{session id}/execute/sync                             | Execute Script             |
 |      | POST   | /session/{session id}/execute/async                            | Execute Async Script       |
 |      | GET    | /session/{session id}/cookie                                   | Get All Cookies            |

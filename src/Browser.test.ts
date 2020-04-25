@@ -12,10 +12,10 @@ describe("Browser", () => {
 
   beforeEach(() => {
     driver = new WebDriver({ remoteUrl: "", desiredCapabilities: {} });
-    driver.newSession = jest.fn(async function() {
+    driver.newSession = jest.fn(async function () {
       return {
         sessionId: expectedSessionId,
-        value: {}
+        value: {},
       };
     });
 
@@ -43,6 +43,18 @@ describe("Browser", () => {
       );
 
       expect(browser.driver.capabilities.browserName).toBe("chrome");
+    });
+  });
+
+  describe("innerHTML", () => {
+    const expectedValue = "expectedValue";
+
+    beforeEach(async () => {
+      driver.source = jest.fn(async () => expectedValue);
+    });
+
+    it("should return page source", async () => {
+      expect(await browser.innerHTML).toEqual(expectedValue);
     });
   });
 

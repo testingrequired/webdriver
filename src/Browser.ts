@@ -36,12 +36,16 @@ export default class Browser {
         ...webdriverOptions,
         desiredCapabilities: {
           ...webdriverOptions.desiredCapabilities,
-          browserName: "chrome"
-        }
+          browserName: "chrome",
+        },
       },
       timeoutsConfig,
       registerHandlers
     );
+  }
+
+  get innerHTML() {
+    return this.driver.source();
   }
 
   async findElement<T extends WebElement>(
@@ -105,7 +109,7 @@ export default class Browser {
       WebElement) as any; // TODO: This is, admittedly, a hack
 
     return elementIds.map(
-      elementId => new WebElementImplementation(this, by, elementId)
+      (elementId) => new WebElementImplementation(this, by, elementId)
     );
   }
 
@@ -130,7 +134,7 @@ export default class Browser {
       WebElement) as any; // TODO: This is, admittedly, a hack
 
     return elementIds.map(
-      elementId => new WebElementImplementation(this, by, elementId)
+      (elementId) => new WebElementImplementation(this, by, elementId)
     );
   }
 

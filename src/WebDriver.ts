@@ -113,6 +113,15 @@ export default class WebDriver extends EventEmitter {
     return this.sessionCommand("/url", "POST", { url });
   }
 
+  async source() {
+    const response = await this.sessionCommand<{ value: string }>(
+      "/source",
+      "GET"
+    );
+
+    return response.value;
+  }
+
   closeWindow() {
     return this.sessionCommand("/window", "DELETE");
   }
