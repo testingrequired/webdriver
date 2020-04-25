@@ -34,23 +34,23 @@ describe("WebDriver", () => {
     const expectedUrl = "expectedUrl";
     const expectedMethod = "GET";
 
-    let commandEventSpy: jest.Mock;
-    let commandEndEventSpy: jest.Mock;
-    let commandSuccessEventSpy: jest.Mock;
-    let commandFailEventSpy: jest.Mock;
+    let commandSpy: jest.Mock;
+    let commandEndSpy: jest.Mock;
+    let commandSuccessSpy: jest.Mock;
+    let commandFailSpy: jest.Mock;
 
     beforeEach(() => {
-      commandEventSpy = jest.fn();
-      driver.on(Events.Command, commandEventSpy);
+      commandSpy = jest.fn();
+      driver.on(Events.Command, commandSpy);
 
-      commandEndEventSpy = jest.fn();
-      driver.on(Events.CommandEnd, commandEndEventSpy);
+      commandEndSpy = jest.fn();
+      driver.on(Events.CommandEnd, commandEndSpy);
 
-      commandSuccessEventSpy = jest.fn();
-      driver.on(Events.CommandSuccess, commandSuccessEventSpy);
+      commandSuccessSpy = jest.fn();
+      driver.on(Events.CommandSuccess, commandSuccessSpy);
 
-      commandFailEventSpy = jest.fn();
-      driver.on(Events.CommandFail, commandFailEventSpy);
+      commandFailSpy = jest.fn();
+      driver.on(Events.CommandFail, commandFailSpy);
     });
 
     describe("when called", () => {
@@ -61,7 +61,7 @@ describe("WebDriver", () => {
           await driver.command(expectedUrl, expectedMethod, body);
         } catch (e) {}
 
-        expect(commandEventSpy).toBeCalledWith(
+        expect(commandSpy).toBeCalledWith(
           "remoteUrl" + expectedUrl,
           expectedMethod,
           body
@@ -85,7 +85,7 @@ describe("WebDriver", () => {
           await driver.command(expectedUrl, expectedMethod, {});
         } catch (e) {}
 
-        expect(commandSuccessEventSpy).toBeCalledWith(
+        expect(commandSuccessSpy).toBeCalledWith(
           body,
           response,
           "remoteUrl" + expectedUrl,
@@ -98,7 +98,7 @@ describe("WebDriver", () => {
           await driver.command(expectedUrl, expectedMethod, {});
         } catch (e) {}
 
-        expect(commandEndEventSpy).toBeCalledWith(
+        expect(commandEndSpy).toBeCalledWith(
           response,
           "remoteUrl" + expectedUrl,
           expectedMethod
@@ -122,7 +122,7 @@ describe("WebDriver", () => {
           await driver.command(expectedUrl, expectedMethod, {});
         } catch (e) {}
 
-        expect(commandFailEventSpy).toBeCalledWith(expect.any(Error), response);
+        expect(commandFailSpy).toBeCalledWith(expect.any(Error), response);
       });
 
       it("should emit command:end event", async () => {
@@ -130,7 +130,7 @@ describe("WebDriver", () => {
           await driver.command(expectedUrl, expectedMethod, {});
         } catch (e) {}
 
-        expect(commandEndEventSpy).toBeCalledWith(
+        expect(commandEndSpy).toBeCalledWith(
           response,
           "remoteUrl" + expectedUrl,
           expectedMethod
