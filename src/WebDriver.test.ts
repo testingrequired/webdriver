@@ -33,42 +33,51 @@ describe("WebDriver", () => {
   describe("command", () => {
     const expectedUrl = "expectedUrl";
     const expectedMethod = "GET";
+
     let commandEndEventSpy: jest.Mock;
+    let commandSuccessEventSpy: jest.Mock;
+    let commandFailEventSpy: jest.Mock;
 
     beforeEach(() => {
       commandEndEventSpy = jest.fn();
       driver.on(Events.CommandEnd, commandEndEventSpy);
+
+      commandSuccessEventSpy = jest.fn();
+      driver.on(Events.CommandSuccess, commandSuccessEventSpy);
+
+      commandFailEventSpy = jest.fn();
+      driver.on(Events.CommandFail, commandFailEventSpy);
     });
 
     describe("when succeeds", () => {
-      const someObject = { foo: "bar" };
-      let commandSuccessEventSpy: jest.Mock;
+      const body = { foo: "bar" };
 
-      beforeEach(async () => {
-        commandSuccessEventSpy = jest.fn();
-        driver.on(Events.CommandSuccess, commandSuccessEventSpy);
-
-        response = mockResponse(true, { body: someObject });
+      beforeEach(() => {
+        response = mockResponse(true, { body });
 
         (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
           response
         );
+      });
 
+      it("should emit command:success event", async () => {
         try {
           await driver.command(expectedUrl, expectedMethod, {});
         } catch (e) {}
-      });
 
-      it("should emit command:success event", () => {
         expect(commandSuccessEventSpy).toBeCalledWith(
-          someObject,
+          body,
           response,
           "remoteUrl" + expectedUrl,
           expectedMethod
         );
       });
 
-      it("should emit command:end event", () => {
+      it("should emit command:end event", async () => {
+        try {
+          await driver.command(expectedUrl, expectedMethod, {});
+        } catch (e) {}
+
         expect(commandEndEventSpy).toBeCalledWith(
           response,
           "remoteUrl" + expectedUrl,
@@ -79,28 +88,28 @@ describe("WebDriver", () => {
 
     describe("when fails", () => {
       const expectedResponseText = "Test";
-      let commandFailEventSpy: jest.Mock;
 
-      beforeEach(async () => {
-        commandFailEventSpy = jest.fn();
-        driver.on(Events.CommandFail, commandFailEventSpy);
-
+      beforeEach(() => {
         response = mockResponse(false, { text: expectedResponseText });
 
         (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
           response
         );
+      });
 
+      it("should emit command:fail event", async () => {
         try {
           await driver.command(expectedUrl, expectedMethod, {});
         } catch (e) {}
-      });
 
-      it("should emit command:fail event", () => {
         expect(commandFailEventSpy).toBeCalledWith(expect.any(Error), response);
       });
 
-      it("should emit command:end event", () => {
+      it("should emit command:end event", async () => {
+        try {
+          await driver.command(expectedUrl, expectedMethod, {});
+        } catch (e) {}
+
         expect(commandEndEventSpy).toBeCalledWith(
           response,
           "remoteUrl" + expectedUrl,
