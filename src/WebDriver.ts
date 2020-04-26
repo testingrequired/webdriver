@@ -15,7 +15,7 @@ export default class WebDriver extends EventEmitter {
 
   constructor(
     private options: WebdriverOptions,
-    private timeoutsConfig: TimeoutsConfig = {},
+    public timeoutsConfig: TimeoutsConfig = {},
     registerHandlers?: (driver: WebDriver) => void
   ) {
     super();
@@ -221,7 +221,7 @@ export default class WebDriver extends EventEmitter {
     >(`/element/${fromElementId}/elements`, "POST", by);
 
     if (!result.value) {
-      this.emit(Events.FindElementsFromElementFail, by);
+      this.emit(Events.FindElementsFromElementFail, fromElementId, by);
       return [];
     }
 
