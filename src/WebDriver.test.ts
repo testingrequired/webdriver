@@ -461,17 +461,78 @@ describe("WebDriver 2", () => {
   // --
 
   describe("when finding elements", () => {
-    it("should make request to webdriver server", () => {});
+    const by = By.css(".testClass");
 
-    it("should emit find elements event", () => {});
+    beforeEach(async () => {
+      await setupSession(driver, sessionId);
+      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+    });
 
-    it("should return element ids when elements are found", () => {});
+    it("should make request to webdriver server", async () => {
+      await driver.findElements(by);
 
-    it("should emit find elements success event when elements are found", () => {});
+      expect(fetch).toBeCalledWith(`remoteUrl/session/${sessionId}/elements`, {
+        body: JSON.stringify(by),
+        method: "POST",
+      });
+    });
 
-    it("should emit find element fail event when elements are not found", () => {});
+    it("should emit find elements event", async () => {
+      const spy = jest.fn();
+      driver.on(Events.FindElements, spy);
 
-    it("should not throw element not found error when elements are not found", () => {});
+      await driver.findElements(by);
+
+      expect(spy).toBeCalledWith(by);
+    });
+
+    it("should return element ids when elements are found", async () => {
+      const expectedElementId = "expectedElementId";
+
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        mockResponse(true, {
+          body: { value: [{ ELEMENT: expectedElementId }] },
+        })
+      );
+
+      const elementIds = await driver.findElements(by);
+
+      expect(Array.isArray(elementIds)).toBeTruthy();
+      expect(elementIds).toHaveLength(1);
+      expect(elementIds[0]).toBe(expectedElementId);
+    });
+
+    it("should emit find elements success event when elements are found", async () => {
+      const expectedElementId = "expectedElementId";
+
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        mockResponse(true, {
+          body: { value: [{ ELEMENT: expectedElementId }] },
+        })
+      );
+
+      const spy = jest.fn();
+      driver.on(Events.FindElementsSuccess, spy);
+
+      await driver.findElements(by);
+
+      expect(spy).toBeCalledWith(by, [expectedElementId]);
+    });
+
+    it("should emit find element fail event when elements are not found", async () => {
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        mockResponse(true, {
+          body: {},
+        })
+      );
+
+      const spy = jest.fn();
+      driver.on(Events.FindElementsFail, spy);
+
+      await driver.findElements(by);
+
+      expect(spy).toBeCalledWith(by);
+    });
   });
 
   describe("when finding an elements within another element", () => {
@@ -484,8 +545,6 @@ describe("WebDriver 2", () => {
     it("should emit find elements success event when elements are found", () => {});
 
     it("should emit find element fail event when elements are not found", () => {});
-
-    it("should not throw element not found error when elements are not found", () => {});
   });
 });
 
@@ -646,88 +705,6 @@ describe("WebDriver", () => {
 
       describe("elements", () => {
         const expectedElementId = "expectedElementId";
-
-        describe("find elements", () => {
-          const selector = "body";
-          const strategy = "css selector";
-          const by = new By(strategy, selector);
-          const expectedElementIds = [
-            "expectedElementId",
-            "expectedElementId2",
-          ];
-          let findElementsEventSpy: jest.Mock;
-          let findElementsSuccessEventSpy: jest.Mock;
-          let findElementsFailEventSpy: jest.Mock;
-          let elementIds: Array<string>;
-
-          beforeEach(() => {
-            findElementsEventSpy = jest.fn();
-            driver.on(Events.FindElements, findElementsEventSpy);
-            findElementsSuccessEventSpy = jest.fn();
-            driver.on(Events.FindElementsSuccess, findElementsSuccessEventSpy);
-            findElementsFailEventSpy = jest.fn();
-            driver.on(Events.FindElementsFail, findElementsFailEventSpy);
-          });
-
-          describe("when successful", () => {
-            beforeEach(async () => {
-              response = mockResponse(true, {
-                body: {
-                  value: expectedElementIds.map((ELEMENT) => ({ ELEMENT })),
-                },
-              });
-
-              (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-                response
-              );
-
-              elementIds = await driver.findElements(by);
-            });
-
-            it("should make request to webdriver", async () => {
-              expect(fetch).toBeCalledWith(
-                "remoteUrl/session/expectedSessionId/elements",
-                {
-                  body: `{"using":"${strategy}","value":"${selector}"}`,
-                  method: "POST",
-                }
-              );
-            });
-
-            it("should return element ids", async () => {
-              expect(elementIds).toStrictEqual(expectedElementIds);
-            });
-
-            it("should emit findElements:success event", () => {
-              expect(findElementsSuccessEventSpy).toBeCalledWith(
-                by,
-                expectedElementIds
-              );
-            });
-          });
-
-          describe("when fail", () => {
-            beforeEach(async () => {
-              response = mockResponse(true, {
-                body: {},
-              });
-
-              (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-                response
-              );
-
-              elementIds = await driver.findElements(by);
-            });
-
-            it("should return an empty list", () => {
-              expect(elementIds).toHaveLength(0);
-            });
-
-            it("should emit findElements:fail event", () => {
-              expect(findElementsFailEventSpy).toBeCalledWith(by);
-            });
-          });
-        });
 
         describe("find elements from element", () => {
           const fromElementId = "fromElementId";
