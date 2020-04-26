@@ -6,6 +6,8 @@ import { Events } from "./events";
 import { Command } from "./Command";
 
 jest.mock("node-fetch");
+const fetchMock = fetch as jest.MockedFunction<typeof fetch>;
+
 jest.mock("uuid");
 
 describe("WebDriver", () => {
@@ -118,10 +120,6 @@ describe("WebDriver", () => {
     it.skip("should rethrow error when session creation fails", async () => {
       const expectedBody = { message: "expectedErrorMessage" };
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-        mockResponse(true, { body: expectedBody })
-      );
-
       expect(driver.newSession.bind(driver)).toThrowError(
         new Error(`Error creating session: ${JSON.stringify(expectedBody)}`)
       );
@@ -131,7 +129,7 @@ describe("WebDriver", () => {
   describe("when deleting session", () => {
     it("should send request to webdriver server", async () => {
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
 
       await driver.deleteSession();
 
@@ -142,7 +140,7 @@ describe("WebDriver", () => {
 
     it("should clear session id", async () => {
       await setupSession(driver);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
 
       await driver.deleteSession();
 
@@ -166,7 +164,7 @@ describe("WebDriver", () => {
       const expectedUrl = "expectedUrl";
 
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
 
       await driver.url(expectedUrl);
 
@@ -180,7 +178,7 @@ describe("WebDriver", () => {
   describe("when getting page source", () => {
     it("should make request to webdriver server", async () => {
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
 
       await driver.source();
 
@@ -193,7 +191,7 @@ describe("WebDriver", () => {
   describe("when closing a window", () => {
     it("should make request to webdriver server", async () => {
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
 
       await driver.closeWindow();
 
@@ -209,7 +207,7 @@ describe("WebDriver", () => {
       const expectedText = "expectedText";
 
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
 
       await driver.sendKeysElement(expectedElementId, expectedText);
 
@@ -231,7 +229,7 @@ describe("WebDriver", () => {
       const expectedScript = "expectedScript";
 
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
 
       await driver.executeScript(expectedScript);
 
@@ -254,7 +252,7 @@ describe("WebDriver", () => {
         };
 
         await setupSession(driver, sessionId);
-        (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+        fetchMock.mockClear();
 
         await driver.executeFunction(expectedScript);
 
@@ -275,7 +273,7 @@ describe("WebDriver", () => {
   describe("when setting timeouts", () => {
     it("should make request to webdriver server", async () => {
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
 
       await driver.setTimeouts({ implicit: 100 });
 
@@ -291,7 +289,7 @@ describe("WebDriver", () => {
 
     beforeEach(async () => {
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
     });
 
     it("should make request to webdriver server", async () => {
@@ -315,7 +313,7 @@ describe("WebDriver", () => {
     it("should return element id when element is found", async () => {
       const expectedElementId = "expectedElementId";
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: { value: { ELEMENT: expectedElementId } },
         })
@@ -329,7 +327,7 @@ describe("WebDriver", () => {
     it("should emit find element success event when element is found", async () => {
       const expectedElementId = "expectedElementId";
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: { value: { ELEMENT: expectedElementId } },
         })
@@ -344,9 +342,7 @@ describe("WebDriver", () => {
     });
 
     it("should emit find element fail event when element is not found", async () => {
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-        mockResponse(true, { body: {} })
-      );
+      fetchMock.mockResolvedValue(mockResponse(true, { body: {} }));
 
       const spy = jest.fn();
       driver.on(Events.FindElementFail, spy);
@@ -357,9 +353,7 @@ describe("WebDriver", () => {
     });
 
     it("should return undefined when element is not found", async () => {
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-        mockResponse(true, { body: {} })
-      );
+      fetchMock.mockResolvedValue(mockResponse(true, { body: {} }));
 
       expect(await driver.findElement(by)).toBeUndefined();
     });
@@ -371,7 +365,7 @@ describe("WebDriver", () => {
 
     beforeEach(async () => {
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
     });
 
     it("should make request to webdriver server", async () => {
@@ -398,7 +392,7 @@ describe("WebDriver", () => {
     it("should return element id when element is found", async () => {
       const expectedElementId = "expectedElementId";
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: { value: { ELEMENT: expectedElementId } },
         })
@@ -415,7 +409,7 @@ describe("WebDriver", () => {
     it("should emit find element from element success event when element is found", async () => {
       const expectedElementId = "expectedElementId";
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: { value: { ELEMENT: expectedElementId } },
         })
@@ -430,7 +424,7 @@ describe("WebDriver", () => {
     });
 
     it("should emit find element from element fail event when element is not found", async () => {
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: {},
         })
@@ -445,7 +439,7 @@ describe("WebDriver", () => {
     });
 
     it("should return undefined when element is not found", async () => {
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: {},
         })
@@ -465,7 +459,7 @@ describe("WebDriver", () => {
 
     beforeEach(async () => {
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
     });
 
     it("should make request to webdriver server", async () => {
@@ -489,7 +483,7 @@ describe("WebDriver", () => {
     it("should return element ids when elements are found", async () => {
       const expectedElementId = "expectedElementId";
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: { value: [{ ELEMENT: expectedElementId }] },
         })
@@ -505,7 +499,7 @@ describe("WebDriver", () => {
     it("should emit find elements success event when elements are found", async () => {
       const expectedElementId = "expectedElementId";
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: { value: [{ ELEMENT: expectedElementId }] },
         })
@@ -520,7 +514,7 @@ describe("WebDriver", () => {
     });
 
     it("should emit find element fail event when elements are not found", async () => {
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: {},
         })
@@ -541,7 +535,7 @@ describe("WebDriver", () => {
 
     beforeEach(async () => {
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
     });
 
     it("should make request to webdriver server", async () => {
@@ -568,7 +562,7 @@ describe("WebDriver", () => {
     it("should return element ids when elements are found", async () => {
       const expectedElementId = "expectedElementId";
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: { value: [{ ELEMENT: expectedElementId }] },
         })
@@ -587,7 +581,7 @@ describe("WebDriver", () => {
     it("should emit find elements success event when elements are found", async () => {
       const expectedElementId = "expectedElementId";
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: { value: [{ ELEMENT: expectedElementId }] },
         })
@@ -604,7 +598,7 @@ describe("WebDriver", () => {
     });
 
     it("should emit find element fail event when elements are not found", async () => {
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, {
           body: {},
         })
@@ -624,7 +618,7 @@ describe("WebDriver", () => {
 
     beforeEach(async () => {
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
     });
 
     it("should make request to webdriver server", async () => {
@@ -641,7 +635,7 @@ describe("WebDriver", () => {
     it("should return element text", async () => {
       const expectedElementText = "expectedElementText";
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+      fetchMock.mockResolvedValue(
         mockResponse(true, { body: { value: expectedElementText } })
       );
 
@@ -656,7 +650,7 @@ describe("WebDriver", () => {
 
     beforeEach(async () => {
       await setupSession(driver, sessionId);
-      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+      fetchMock.mockClear();
     });
 
     it("should make request to webdriver server", async () => {
@@ -697,9 +691,7 @@ describe("WebDriver", () => {
         body: expectedResponseData,
       });
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-        expectedResponse
-      );
+      fetchMock.mockResolvedValue(expectedResponse);
 
       const spy = jest.fn();
       driver.on(Events.CommandSuccess, spy);
@@ -721,9 +713,7 @@ describe("WebDriver", () => {
         body: expectedResponseData,
       });
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-        expectedResponse
-      );
+      fetchMock.mockResolvedValue(expectedResponse);
 
       const spy = jest.fn();
       driver.on(Events.CommandEnd, spy);
@@ -739,9 +729,7 @@ describe("WebDriver", () => {
       const expectedErrorText = "expectedErrorText";
       const expectedResponse = mockResponse(false, { text: expectedErrorText });
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-        expectedResponse
-      );
+      fetchMock.mockResolvedValue(expectedResponse);
 
       const spy = jest.fn();
       driver.on(Events.CommandFail, spy);
@@ -762,9 +750,7 @@ describe("WebDriver", () => {
       const expectedErrorText = "expectedErrorText";
       const expectedResponse = mockResponse(false, { text: expectedErrorText });
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-        expectedResponse
-      );
+      fetchMock.mockResolvedValue(expectedResponse);
 
       const spy = jest.fn();
       driver.on(Events.CommandEnd, spy);
@@ -780,9 +766,7 @@ describe("WebDriver", () => {
       const expectedErrorText = "expectedErrorText";
       const expectedResponse = mockResponse(false, { text: expectedErrorText });
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-        expectedResponse
-      );
+      fetchMock.mockResolvedValue(expectedResponse);
 
       try {
         await driver.command(command);
@@ -800,9 +784,7 @@ describe("WebDriver", () => {
         throw expectedError;
       };
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-        expectedResponse
-      );
+      fetchMock.mockResolvedValue(expectedResponse);
 
       const spy = jest.fn();
       driver.on(Events.CommandFail, spy);
@@ -827,9 +809,7 @@ describe("WebDriver", () => {
         throw expectedError;
       };
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-        expectedResponse
-      );
+      fetchMock.mockResolvedValue(expectedResponse);
 
       const spy = jest.fn();
       driver.on(Events.CommandEnd, spy);
@@ -849,9 +829,7 @@ describe("WebDriver", () => {
         throw expectedError;
       };
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-        expectedResponse
-      );
+      fetchMock.mockResolvedValue(expectedResponse);
 
       try {
         await driver.command(command, expectedRequestId);
@@ -891,14 +869,14 @@ function setupSession(
   sessionId: string = "expectedSessionId"
 ) {
   const response = mockResponse(true, { body: { sessionId } });
-  (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
+  fetchMock.mockResolvedValue(response);
 
   return driver.newSession();
 }
 
 function setupFailedSession(driver: WebDriver, body: any) {
   const response = mockResponse(true, { body });
-  (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
+  fetchMock.mockResolvedValue(response);
 
   return driver.newSession();
 }
