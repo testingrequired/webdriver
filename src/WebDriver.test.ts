@@ -688,12 +688,7 @@ describe("WebDriver", () => {
         await driver.command(command, expectedRequestId);
       } catch (e) {}
 
-      expect(spy).toBeCalledWith(
-        expectedRequestId,
-        "remoteUrl" + expectedUrl,
-        expectedMethod,
-        expectedBody
-      );
+      expect(spy).toBeCalledWith(expectedRequestId, command);
     });
 
     it("should emit command success event when command succeeds", async () => {
@@ -715,6 +710,7 @@ describe("WebDriver", () => {
 
       expect(spy).toBeCalledWith(
         expectedRequestId,
+        command,
         expectedResponseData,
         expectedResponse,
         "remoteUrl" + expectedUrl,
@@ -741,6 +737,7 @@ describe("WebDriver", () => {
 
       expect(spy).toBeCalledWith(
         expectedRequestId,
+        command,
         expectedResponse,
         "remoteUrl" + expectedUrl,
         expectedMethod
@@ -764,6 +761,7 @@ describe("WebDriver", () => {
 
       expect(spy).toBeCalledWith(
         expectedRequestId,
+        command,
         new Error(expectedErrorText),
         expectedResponse
       );
@@ -786,6 +784,7 @@ describe("WebDriver", () => {
 
       expect(spy).toBeCalledWith(
         expectedRequestId,
+        command,
         expectedResponse,
         "remoteUrl" + expectedUrl,
         expectedMethod

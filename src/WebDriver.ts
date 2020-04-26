@@ -51,23 +51,31 @@ export default class WebDriver extends EventEmitter {
     const { endpoint, method, body } = command;
     const url = `${this.options.remoteUrl}${endpoint}`;
 
-    this.emit(Events.Command, requestId, url, method, body);
+    this.emit(Events.Command, requestId, command);
 
     const res = await fetch(url, { method, body: JSON.stringify(body) });
 
     if (!res.ok) {
       const error = new Error(await res.text());
 
-      this.emit(Events.CommandFail, requestId, error, res);
-      this.emit(Events.CommandEnd, requestId, res, url, method);
+      this.emit(Events.CommandFail, requestId, command, error, res);
+      this.emit(Events.CommandEnd, requestId, command, res, url, method);
 
       throw error;
     }
 
     const data: T = await res.json();
 
-    this.emit(Events.CommandSuccess, requestId, data, res, url, method);
-    this.emit(Events.CommandEnd, requestId, res, url, method);
+    this.emit(
+      Events.CommandSuccess,
+      requestId,
+      command,
+      data,
+      res,
+      url,
+      method
+    );
+    this.emit(Events.CommandEnd, requestId, command, res, url, method);
 
     return data;
   }
