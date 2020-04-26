@@ -64,12 +64,19 @@ export default class WebDriver extends EventEmitter {
       throw error;
     }
 
-    const data: T = await res.json();
+    let data: T;
 
-    this.emit(Events.CommandSuccess, requestId, command, data);
-    this.emit(Events.CommandEnd, requestId, command);
+    try {
+      data = await res.json();
+      this.emit(Events.CommandSuccess, requestId, command, data);
+      this.emit(Events.CommandEnd, requestId, command);
+      return data;
+    } catch (e) {
+      this.emit(Events.CommandFail, requestId, command, e, res);
+      this.emit(Events.CommandEnd, requestId, command);
 
-    return data;
+      throw e;
+    }
   }
 
   /**

@@ -792,6 +792,75 @@ describe("WebDriver", () => {
       }
     });
 
+    it("should emit command fail event when failing to parse response json", async () => {
+      const expectedError = new Error();
+      const expectedResponse = mockResponse(true, {});
+
+      expectedResponse.json = async () => {
+        throw expectedError;
+      };
+
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        expectedResponse
+      );
+
+      const spy = jest.fn();
+      driver.on(Events.CommandFail, spy);
+
+      try {
+        await driver.command(command, expectedRequestId);
+      } catch (e) {}
+
+      expect(spy).toBeCalledWith(
+        expectedRequestId,
+        command,
+        expectedError,
+        expectedResponse
+      );
+    });
+
+    it("should emit command end event when failing to parse response json", async () => {
+      const expectedError = new Error();
+      const expectedResponse = mockResponse(true, {});
+
+      expectedResponse.json = async () => {
+        throw expectedError;
+      };
+
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        expectedResponse
+      );
+
+      const spy = jest.fn();
+      driver.on(Events.CommandEnd, spy);
+
+      try {
+        await driver.command(command, expectedRequestId);
+      } catch (e) {}
+
+      expect(spy).toBeCalledWith(expectedRequestId, command);
+    });
+
+    it("should throw error when failing to parse response json", async () => {
+      const expectedError = new Error();
+      const expectedResponse = mockResponse(true, {});
+
+      expectedResponse.json = async () => {
+        throw expectedError;
+      };
+
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        expectedResponse
+      );
+
+      try {
+        await driver.command(command, expectedRequestId);
+        fail("Did not throw error");
+      } catch (e) {
+        expect(e).toBe(expectedError);
+      }
+    });
+
     describe("when session is active", () => {});
   });
 });
