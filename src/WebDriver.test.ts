@@ -652,7 +652,23 @@ describe("WebDriver 2", () => {
   });
 
   describe("when clicking an element", () => {
-    it("should make request to webdriver server", () => {});
+    const expectedElementId = "expectedElementId";
+
+    beforeEach(async () => {
+      await setupSession(driver, sessionId);
+      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+    });
+
+    it("should make request to webdriver server", async () => {
+      await driver.clickElement(expectedElementId);
+
+      expect(fetch).toBeCalledWith(
+        `remoteUrl/session/${sessionId}/element/${expectedElementId}/click`,
+        {
+          method: "POST",
+        }
+      );
+    });
   });
 });
 
@@ -788,44 +804,6 @@ describe("WebDriver", () => {
         } catch (e) {
           expect(e.message).toBe(expectedResponseText);
         }
-      });
-    });
-  });
-
-  describe("session", () => {
-    describe("when created", () => {
-      const sessionId = "expectedSessionId";
-
-      let sessionStartEventSpy: jest.Mock;
-
-      beforeEach(async () => {
-        sessionStartEventSpy = jest.fn();
-        driver.on(Events.Session, sessionStartEventSpy);
-
-        response = mockResponse(true, { body: { sessionId } });
-
-        (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-          response
-        );
-
-        await driver.newSession();
-      });
-
-      describe("elements", () => {
-        const expectedElementId = "expectedElementId";
-
-        describe("click element", () => {
-          it("should make request to webdriver", async () => {
-            await driver.clickElement(expectedElementId);
-
-            expect(fetch).toBeCalledWith(
-              "remoteUrl/session/expectedSessionId/element/expectedElementId/click",
-              {
-                method: "POST",
-              }
-            );
-          });
-        });
       });
     });
   });
