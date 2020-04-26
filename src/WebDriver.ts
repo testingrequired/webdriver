@@ -5,12 +5,9 @@ import { EventEmitter } from "events";
 import { Events } from "./events";
 import { Command } from "./Command";
 
-export interface TimeoutsConfig {
-  script?: number;
-  pageLoad?: number;
-  implicit?: number;
-}
-
+/**
+ * Interacts directly with webdriver server
+ */
 export default class WebDriver extends EventEmitter {
   private _sessionId?: string;
 
@@ -26,14 +23,25 @@ export default class WebDriver extends EventEmitter {
     }
   }
 
+  /**
+   * Current session id if exists
+   */
   get sessionId() {
     return this._sessionId;
   }
 
+  /**
+   * Desired capability of webdriver
+   */
   get capabilities() {
     return this.options.desiredCapabilities;
   }
 
+  /**
+   * Send a command to the webdriver server
+   * @param command Command object containing endpoint, method and body
+   * @returns Response JSON body deserialized
+   */
   async command<T extends CommandResponse>(command: Command): Promise<T> {
     const { endpoint, method, body } = command;
     const url = `${this.options.remoteUrl}${endpoint}`;
@@ -59,6 +67,11 @@ export default class WebDriver extends EventEmitter {
     return data;
   }
 
+  /**
+   * Send a command to the webdriver server using the current session
+   * @param command Command object containing endpoint, method and body
+   * @returns Response JSON body deserialized
+   */
   sessionCommand<T extends CommandResponse>(command: Command) {
     return this.command<T>(
       new Command(
@@ -69,6 +82,10 @@ export default class WebDriver extends EventEmitter {
     );
   }
 
+  /**
+   * Start a new session with the webdriver server
+   * @returns Object containing session id
+   */
   async newSession() {
     const { desiredCapabilities } = this.options;
 
@@ -97,6 +114,9 @@ export default class WebDriver extends EventEmitter {
     return result;
   }
 
+  /**
+   * End session with webdriver server
+   */
   async deleteSession() {
     await this.command(Command.delete(`/session/${this.sessionId}`));
 
@@ -105,10 +125,18 @@ export default class WebDriver extends EventEmitter {
     delete this._sessionId;
   }
 
+  /**
+   * Navigate to url
+   * @param url The url to navigate to
+   */
   url(url: string) {
     return this.sessionCommand(Command.post(`/url`, { url }));
   }
 
+  /**
+   * Get source code for current page
+   * @returns Source code for current page
+   */
   async source() {
     const response = await this.sessionCommand<{ value: string }>(
       Command.get(`/source`)
@@ -117,14 +145,27 @@ export default class WebDriver extends EventEmitter {
     return response.value;
   }
 
+  /**
+   * Close the current window
+   */
   closeWindow() {
     return this.sessionCommand(Command.delete(`/window`));
   }
 
+  /**
+   * Execute javascript in the current window's context
+   * @param script Javascript to execute
+   * @param args Arguments available to script
+   */
   executeScript(script: string, ...args: Array<string>) {
     return this.sessionCommand(Command.post(`/execute/sync`, { script, args }));
   }
 
+  /**
+   * Execute function in the current window's context
+   * @param fn Function to execute
+   * @param args Arguments passed to function when executed
+   */
   executeFunction(fn: Function, ...args: Array<string>) {
     return this.executeScript(
       `return (${fn.toString()}).apply(null, arguments)`,
@@ -132,10 +173,19 @@ export default class WebDriver extends EventEmitter {
     );
   }
 
+  /**
+   * Configure webdriver timeout's for current session
+   * @param config Timeouts and values to configure
+   */
   setTimeouts(config: TimeoutsConfig) {
     return this.sessionCommand(Command.post(`/timeouts`, config));
   }
 
+  /**
+   * Find element
+   * @param by Selector strategy and value to find element
+   * @returns {string} Element id if element is found
+   */
   async findElement(by: By): Promise<string | undefined> {
     this.emit(Events.FindElement, by);
 
@@ -155,6 +205,12 @@ export default class WebDriver extends EventEmitter {
     return elementId;
   }
 
+  /**
+   * Find element within a parent element
+   * @param fromElementId Parent element id
+   * @param by Selector strategy and value to find element
+   * @returns {string} Element id if element is found
+   */
   async findElementFromElement(
     fromElementId: string,
     by: By
@@ -182,6 +238,11 @@ export default class WebDriver extends EventEmitter {
     return elementId;
   }
 
+  /**
+   * Find one or more elements
+   * @param by Selector strategy and value to find elements
+   * @returns {string[]} Element ids if element/s are found
+   */
   async findElements(by: By): Promise<Array<string>> {
     this.emit(Events.FindElements, by);
 
@@ -201,6 +262,12 @@ export default class WebDriver extends EventEmitter {
     return elementIds;
   }
 
+  /**
+   * Find one or more elements within a parent element
+   * @param by Selector strategy and value to find elements
+   * @param fromElementId Parent element id
+   * @returns {string[]} Element ids if element/s are found
+   */
   async findElementsFromElement(
     by: By,
     fromElementId: string
@@ -228,6 +295,11 @@ export default class WebDriver extends EventEmitter {
     return elementIds;
   }
 
+  /**
+   * Get text from element
+   * @param elementId Target element id
+   * @returns Text from element
+   */
   async elementText(elementId: string) {
     const result = await this.sessionCommand<CommandResponse<string>>(
       Command.get(`/element/${elementId}/text`)
@@ -236,6 +308,10 @@ export default class WebDriver extends EventEmitter {
     return result.value;
   }
 
+  /**
+   * Click element
+   * @param elementId Target element id
+   */
   clickElement(elementId: string) {
     return this.sessionCommand(Command.post(`/element/${elementId}/click`));
   }
@@ -260,4 +336,10 @@ interface NewSessionResponse extends CommandResponse {
 
 interface CommandResponse<T = any> {
   value: T | null;
+}
+
+export interface TimeoutsConfig {
+  script?: number;
+  pageLoad?: number;
+  implicit?: number;
 }
