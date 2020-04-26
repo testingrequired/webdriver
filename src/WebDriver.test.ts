@@ -6,7 +6,7 @@ import { Events } from "./events";
 
 jest.mock("node-fetch");
 
-describe("WebDriver 2", () => {
+describe("WebDriver", () => {
   const sessionId = "expectedSessionId";
 
   const webdriverOptions: WebdriverOptions = {
@@ -458,8 +458,6 @@ describe("WebDriver 2", () => {
     });
   });
 
-  // --
-
   describe("when finding elements", () => {
     const by = By.css(".testClass");
 
@@ -670,142 +668,138 @@ describe("WebDriver 2", () => {
       );
     });
   });
-});
 
-describe("WebDriver", () => {
-  const webdriverOptions: WebdriverOptions = {
-    remoteUrl: "remoteUrl",
-    desiredCapabilities: {},
-  };
-  let driver: WebDriver;
-  let response: Response;
-  let registerHandlersSpy: jest.Mock;
-
-  beforeEach(async () => {
-    registerHandlersSpy = jest.fn();
-    driver = new WebDriver(webdriverOptions, {}, registerHandlersSpy);
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe("command", () => {
+  describe("when running a command", () => {
     const expectedUrl = "expectedUrl";
     const expectedMethod = "GET";
+    const expectedBody = Symbol("expectedBody");
 
-    let commandSpy: jest.Mock;
-    let commandEndSpy: jest.Mock;
-    let commandSuccessSpy: jest.Mock;
-    let commandFailSpy: jest.Mock;
+    it.skip("should make request to webdriver server", () => {});
 
-    beforeEach(() => {
-      commandSpy = jest.fn();
-      driver.on(Events.Command, commandSpy);
+    it("should emit command event when command initiated", async () => {
+      const spy = jest.fn();
+      driver.on(Events.Command, spy);
 
-      commandEndSpy = jest.fn();
-      driver.on(Events.CommandEnd, commandEndSpy);
+      try {
+        await driver.command(expectedUrl, expectedMethod, expectedBody);
+      } catch (e) {}
 
-      commandSuccessSpy = jest.fn();
-      driver.on(Events.CommandSuccess, commandSuccessSpy);
-
-      commandFailSpy = jest.fn();
-      driver.on(Events.CommandFail, commandFailSpy);
+      expect(spy).toBeCalledWith(
+        "remoteUrl" + expectedUrl,
+        expectedMethod,
+        expectedBody
+      );
     });
 
-    describe("when called", () => {
-      const body = { foo: "bar" };
-
-      it("should emit command event", async () => {
-        try {
-          await driver.command(expectedUrl, expectedMethod, body);
-        } catch (e) {}
-
-        expect(commandSpy).toBeCalledWith(
-          "remoteUrl" + expectedUrl,
-          expectedMethod,
-          body
-        );
+    it("should emit command success event when command succeeds", async () => {
+      const expectedResponseData = Symbol("expectedResponseData");
+      const expectedResponse = mockResponse(true, {
+        body: expectedResponseData,
       });
+
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        expectedResponse
+      );
+
+      const spy = jest.fn();
+      driver.on(Events.CommandSuccess, spy);
+
+      try {
+        await driver.command(expectedUrl, expectedMethod, expectedBody);
+      } catch (e) {}
+
+      expect(spy).toBeCalledWith(
+        expectedResponseData,
+        expectedResponse,
+        "remoteUrl" + expectedUrl,
+        expectedMethod
+      );
     });
 
-    describe("when succeeds", () => {
-      const body = { foo: "bar" };
-
-      beforeEach(() => {
-        response = mockResponse(true, { body });
-
-        (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-          response
-        );
+    it("should emit command end event when command succeeds", async () => {
+      const expectedResponseData = Symbol("expectedResponseData");
+      const expectedResponse = mockResponse(true, {
+        body: expectedResponseData,
       });
 
-      it("should emit command:success event", async () => {
-        try {
-          await driver.command(expectedUrl, expectedMethod, {});
-        } catch (e) {}
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        expectedResponse
+      );
 
-        expect(commandSuccessSpy).toBeCalledWith(
-          body,
-          response,
-          "remoteUrl" + expectedUrl,
-          expectedMethod
-        );
-      });
+      const spy = jest.fn();
+      driver.on(Events.CommandEnd, spy);
 
-      it("should emit command:end event", async () => {
-        try {
-          await driver.command(expectedUrl, expectedMethod, {});
-        } catch (e) {}
+      try {
+        await driver.command(expectedUrl, expectedMethod, expectedBody);
+      } catch (e) {}
 
-        expect(commandEndSpy).toBeCalledWith(
-          response,
-          "remoteUrl" + expectedUrl,
-          expectedMethod
-        );
-      });
+      expect(spy).toBeCalledWith(
+        expectedResponse,
+        "remoteUrl" + expectedUrl,
+        expectedMethod
+      );
     });
 
-    describe("when fails", () => {
-      const expectedResponseText = "Test";
+    it("should emit command fail event when command fails", async () => {
+      const expectedErrorText = "expectedErrorText";
+      const expectedResponse = mockResponse(false, { text: expectedErrorText });
 
-      beforeEach(() => {
-        response = mockResponse(false, { text: expectedResponseText });
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        expectedResponse
+      );
 
-        (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-          response
-        );
-      });
+      const spy = jest.fn();
+      driver.on(Events.CommandFail, spy);
 
-      it("should emit command:fail event", async () => {
-        try {
-          await driver.command(expectedUrl, expectedMethod, {});
-        } catch (e) {}
+      try {
+        await driver.command(expectedUrl, expectedMethod, expectedBody);
+      } catch (e) {}
 
-        expect(commandFailSpy).toBeCalledWith(expect.any(Error), response);
-      });
-
-      it("should emit command:end event", async () => {
-        try {
-          await driver.command(expectedUrl, expectedMethod, {});
-        } catch (e) {}
-
-        expect(commandEndSpy).toBeCalledWith(
-          response,
-          "remoteUrl" + expectedUrl,
-          expectedMethod
-        );
-      });
-
-      it("should throw error with response text", async () => {
-        try {
-          await driver.command(expectedUrl, expectedMethod, {});
-          fail("Did not throw error");
-        } catch (e) {
-          expect(e.message).toBe(expectedResponseText);
-        }
-      });
+      expect(spy).toBeCalledWith(
+        new Error(expectedErrorText),
+        expectedResponse
+      );
     });
+
+    it("should emit command end event when command fails", async () => {
+      const expectedErrorText = "expectedErrorText";
+      const expectedResponse = mockResponse(false, { text: expectedErrorText });
+
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        expectedResponse
+      );
+
+      const spy = jest.fn();
+      driver.on(Events.CommandEnd, spy);
+
+      try {
+        await driver.command(expectedUrl, expectedMethod, expectedBody);
+      } catch (e) {}
+
+      expect(spy).toBeCalledWith(
+        expectedResponse,
+        "remoteUrl" + expectedUrl,
+        expectedMethod
+      );
+    });
+
+    it("should throw error when command fails", async () => {
+      const expectedErrorText = "expectedErrorText";
+      const expectedResponse = mockResponse(false, { text: expectedErrorText });
+
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        expectedResponse
+      );
+
+      try {
+        await driver.command(expectedUrl, expectedMethod, expectedBody);
+        fail("Did not throw error");
+      } catch (e) {
+        expect(e.message).toBe(expectedErrorText);
+      }
+    });
+
+    describe("when session is active", () => {});
   });
 });
 
