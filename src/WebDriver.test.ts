@@ -6,6 +6,7 @@ import { Events } from "./events";
 import { Command } from "./Command";
 
 jest.mock("node-fetch");
+jest.mock("uuid");
 
 describe("WebDriver", () => {
   const sessionId = "expectedSessionId";
@@ -671,6 +672,7 @@ describe("WebDriver", () => {
   });
 
   describe("when running a command", () => {
+    const expectedRequestId = "expectedRequestId";
     const expectedUrl = "expectedUrl";
     const expectedMethod = "GET";
     const expectedBody = Symbol("expectedBody");
@@ -683,10 +685,11 @@ describe("WebDriver", () => {
       driver.on(Events.Command, spy);
 
       try {
-        await driver.command(command);
+        await driver.command(command, expectedRequestId);
       } catch (e) {}
 
       expect(spy).toBeCalledWith(
+        expectedRequestId,
         "remoteUrl" + expectedUrl,
         expectedMethod,
         expectedBody
@@ -707,10 +710,11 @@ describe("WebDriver", () => {
       driver.on(Events.CommandSuccess, spy);
 
       try {
-        await driver.command(command);
+        await driver.command(command, expectedRequestId);
       } catch (e) {}
 
       expect(spy).toBeCalledWith(
+        expectedRequestId,
         expectedResponseData,
         expectedResponse,
         "remoteUrl" + expectedUrl,
@@ -732,10 +736,11 @@ describe("WebDriver", () => {
       driver.on(Events.CommandEnd, spy);
 
       try {
-        await driver.command(command);
+        await driver.command(command, expectedRequestId);
       } catch (e) {}
 
       expect(spy).toBeCalledWith(
+        expectedRequestId,
         expectedResponse,
         "remoteUrl" + expectedUrl,
         expectedMethod
@@ -754,10 +759,11 @@ describe("WebDriver", () => {
       driver.on(Events.CommandFail, spy);
 
       try {
-        await driver.command(command);
+        await driver.command(command, expectedRequestId);
       } catch (e) {}
 
       expect(spy).toBeCalledWith(
+        expectedRequestId,
         new Error(expectedErrorText),
         expectedResponse
       );
@@ -775,10 +781,11 @@ describe("WebDriver", () => {
       driver.on(Events.CommandEnd, spy);
 
       try {
-        await driver.command(command);
+        await driver.command(command, expectedRequestId);
       } catch (e) {}
 
       expect(spy).toBeCalledWith(
+        expectedRequestId,
         expectedResponse,
         "remoteUrl" + expectedUrl,
         expectedMethod

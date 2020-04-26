@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import fetch from "node-fetch";
 import { By } from "./By";
 import WebdriverOptions from "./WebdriverOptions";
@@ -42,27 +43,31 @@ export default class WebDriver extends EventEmitter {
    * @param command Command object containing endpoint, method and body
    * @returns Response JSON body deserialized
    */
-  async command<T extends CommandResponse>(command: Command): Promise<T> {
+  async command<T extends CommandResponse>(
+    command: Command,
+    previousRequestId?: string
+  ): Promise<T> {
+    const requestId: string = previousRequestId || uuidv4();
     const { endpoint, method, body } = command;
     const url = `${this.options.remoteUrl}${endpoint}`;
 
-    this.emit(Events.Command, url, method, body);
+    this.emit(Events.Command, requestId, url, method, body);
 
     const res = await fetch(url, { method, body: JSON.stringify(body) });
 
     if (!res.ok) {
       const error = new Error(await res.text());
 
-      this.emit(Events.CommandFail, error, res);
-      this.emit(Events.CommandEnd, res, url, method);
+      this.emit(Events.CommandFail, requestId, error, res);
+      this.emit(Events.CommandEnd, requestId, res, url, method);
 
       throw error;
     }
 
     const data: T = await res.json();
 
-    this.emit(Events.CommandSuccess, data, res, url, method);
-    this.emit(Events.CommandEnd, res, url, method);
+    this.emit(Events.CommandSuccess, requestId, data, res, url, method);
+    this.emit(Events.CommandEnd, requestId, res, url, method);
 
     return data;
   }
