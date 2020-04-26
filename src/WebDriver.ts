@@ -221,7 +221,7 @@ export default class WebDriver extends EventEmitter {
     >(`/element/${fromElementId}/elements`, "POST", by);
 
     if (!result.value) {
-      this.emit(Events.FindElementsFromElementFail, by);
+      this.emit(Events.FindElementsFromElementFail, fromElementId, by);
       return [];
     }
 
