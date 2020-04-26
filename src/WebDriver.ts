@@ -3,6 +3,7 @@ import { By } from "./By";
 import WebdriverOptions from "./WebdriverOptions";
 import { EventEmitter } from "events";
 import { Events } from "./events";
+import { Command } from "./Command";
 
 export interface TimeoutsConfig {
   script?: number;
@@ -33,12 +34,9 @@ export default class WebDriver extends EventEmitter {
     return this.options.desiredCapabilities;
   }
 
-  async command<T extends CommandResponse>(
-    command: string,
-    method: string,
-    body?: any
-  ): Promise<T> {
-    const url = `${this.options.remoteUrl}${command}`;
+  async command<T extends CommandResponse>(command: Command): Promise<T> {
+    const { endpoint, method, body } = command;
+    const url = `${this.options.remoteUrl}${endpoint}`;
 
     this.emit(Events.Command, url, method, body);
 
@@ -61,15 +59,13 @@ export default class WebDriver extends EventEmitter {
     return data;
   }
 
-  sessionCommand<T extends CommandResponse>(
-    command: string,
-    method: string,
-    body?: any
-  ) {
+  sessionCommand<T extends CommandResponse>(command: Command) {
     return this.command<T>(
-      `/session/${this.sessionId}${command}`,
-      method,
-      body
+      new Command(
+        `/session/${this.sessionId}${command.endpoint}`,
+        command.method,
+        command.body
+      )
     );
   }
 
@@ -78,9 +74,9 @@ export default class WebDriver extends EventEmitter {
 
     this.emit(Events.Session, desiredCapabilities);
 
-    const result = await this.command<NewSessionResponse>("/session", "POST", {
-      desiredCapabilities,
-    });
+    const result = await this.command<NewSessionResponse>(
+      new Command("/session", "POST", { desiredCapabilities })
+    );
 
     if (!result.sessionId) {
       const error = new Error(
@@ -102,7 +98,7 @@ export default class WebDriver extends EventEmitter {
   }
 
   async deleteSession() {
-    await this.command(`/session/${this.sessionId}`, "DELETE");
+    await this.command(new Command(`/session/${this.sessionId}`, "DELETE"));
 
     this.emit(Events.SessionEnd, this.sessionId);
 
@@ -110,24 +106,25 @@ export default class WebDriver extends EventEmitter {
   }
 
   url(url: string) {
-    return this.sessionCommand("/url", "POST", { url });
+    return this.sessionCommand(new Command(`/url`, "POST", { url }));
   }
 
   async source() {
     const response = await this.sessionCommand<{ value: string }>(
-      "/source",
-      "GET"
+      new Command(`/source`, "GET")
     );
 
     return response.value;
   }
 
   closeWindow() {
-    return this.sessionCommand("/window", "DELETE");
+    return this.sessionCommand(new Command(`/window`, "DELETE"));
   }
 
   executeScript(script: string, ...args: Array<string>) {
-    return this.sessionCommand(`/execute/sync`, "POST", { script, args });
+    return this.sessionCommand(
+      new Command(`/execute/sync`, "POST", { script, args })
+    );
   }
 
   executeFunction(fn: Function, ...args: Array<string>) {
@@ -138,16 +135,14 @@ export default class WebDriver extends EventEmitter {
   }
 
   setTimeouts(config: TimeoutsConfig) {
-    return this.sessionCommand("/timeouts", "POST", config);
+    return this.sessionCommand(new Command(`/timeouts`, "POST", config));
   }
 
   async findElement(by: By): Promise<string | undefined> {
     this.emit(Events.FindElement, by);
 
     const result = await this.sessionCommand<CommandResponse<ElementIdValue>>(
-      "/element",
-      "POST",
-      by
+      new Command(`/element`, "POST", by)
     );
 
     if (!result.value) {
@@ -169,9 +164,7 @@ export default class WebDriver extends EventEmitter {
     this.emit(Events.FindElementFromElement, fromElementId, by);
 
     const result = await this.sessionCommand<CommandResponse<ElementIdValue>>(
-      `/element/${fromElementId}/element`,
-      "POST",
-      by
+      new Command(`/element/${fromElementId}/element`, "POST", by)
     );
 
     if (!result.value) {
@@ -196,7 +189,7 @@ export default class WebDriver extends EventEmitter {
 
     const result = await this.sessionCommand<
       CommandResponse<Array<ElementIdValue>>
-    >("/elements", "POST", by);
+    >(new Command(`/elements`, "POST", by));
 
     if (!result.value) {
       this.emit(Events.FindElementsFail, by);
@@ -218,7 +211,7 @@ export default class WebDriver extends EventEmitter {
 
     const result = await this.sessionCommand<
       CommandResponse<Array<ElementIdValue>>
-    >(`/element/${fromElementId}/elements`, "POST", by);
+    >(new Command(`/element/${fromElementId}/elements`, "POST", by));
 
     if (!result.value) {
       this.emit(Events.FindElementsFromElementFail, fromElementId, by);
@@ -239,22 +232,25 @@ export default class WebDriver extends EventEmitter {
 
   async elementText(elementId: string) {
     const result = await this.sessionCommand<CommandResponse<string>>(
-      `/element/${elementId}/text`,
-      "GET"
+      new Command(`/element/${elementId}/text`, "GET")
     );
 
     return result.value;
   }
 
   clickElement(elementId: string) {
-    return this.sessionCommand(`/element/${elementId}/click`, "POST");
+    return this.sessionCommand(
+      new Command(`/element/${elementId}/click`, "POST")
+    );
   }
 
   sendKeysElement(elementId: string, text: string) {
-    return this.sessionCommand(`/element/${elementId}/value`, "POST", {
-      text,
-      value: text.split(""),
-    });
+    return this.sessionCommand(
+      new Command(`/element/${elementId}/value`, "POST", {
+        text,
+        value: text.split(""),
+      })
+    );
   }
 }
 

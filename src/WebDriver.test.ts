@@ -3,6 +3,7 @@ import { By } from "./By";
 import fetch, { Response } from "node-fetch";
 import WebdriverOptions from "./WebdriverOptions";
 import { Events } from "./events";
+import { Command } from "./Command";
 
 jest.mock("node-fetch");
 
@@ -673,6 +674,7 @@ describe("WebDriver", () => {
     const expectedUrl = "expectedUrl";
     const expectedMethod = "GET";
     const expectedBody = Symbol("expectedBody");
+    const command = new Command(expectedUrl, expectedMethod, expectedBody);
 
     it.skip("should make request to webdriver server", () => {});
 
@@ -681,7 +683,7 @@ describe("WebDriver", () => {
       driver.on(Events.Command, spy);
 
       try {
-        await driver.command(expectedUrl, expectedMethod, expectedBody);
+        await driver.command(command);
       } catch (e) {}
 
       expect(spy).toBeCalledWith(
@@ -705,7 +707,7 @@ describe("WebDriver", () => {
       driver.on(Events.CommandSuccess, spy);
 
       try {
-        await driver.command(expectedUrl, expectedMethod, expectedBody);
+        await driver.command(command);
       } catch (e) {}
 
       expect(spy).toBeCalledWith(
@@ -730,7 +732,7 @@ describe("WebDriver", () => {
       driver.on(Events.CommandEnd, spy);
 
       try {
-        await driver.command(expectedUrl, expectedMethod, expectedBody);
+        await driver.command(command);
       } catch (e) {}
 
       expect(spy).toBeCalledWith(
@@ -752,7 +754,7 @@ describe("WebDriver", () => {
       driver.on(Events.CommandFail, spy);
 
       try {
-        await driver.command(expectedUrl, expectedMethod, expectedBody);
+        await driver.command(command);
       } catch (e) {}
 
       expect(spy).toBeCalledWith(
@@ -773,7 +775,7 @@ describe("WebDriver", () => {
       driver.on(Events.CommandEnd, spy);
 
       try {
-        await driver.command(expectedUrl, expectedMethod, expectedBody);
+        await driver.command(command);
       } catch (e) {}
 
       expect(spy).toBeCalledWith(
@@ -792,7 +794,7 @@ describe("WebDriver", () => {
       );
 
       try {
-        await driver.command(expectedUrl, expectedMethod, expectedBody);
+        await driver.command(command);
         fail("Did not throw error");
       } catch (e) {
         expect(e.message).toBe(expectedErrorText);
