@@ -618,6 +618,42 @@ describe("WebDriver 2", () => {
       expect(spy).toBeCalledWith(expectedFromElementId, by);
     });
   });
+
+  describe("when getting the text of an element", () => {
+    const expectedElementId = "expectedElementId";
+
+    beforeEach(async () => {
+      await setupSession(driver, sessionId);
+      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+    });
+
+    it("should make request to webdriver server", async () => {
+      await driver.elementText(expectedElementId);
+
+      expect(fetch).toBeCalledWith(
+        `remoteUrl/session/${sessionId}/element/${expectedElementId}/text`,
+        {
+          method: "GET",
+        }
+      );
+    });
+
+    it("should return element text", async () => {
+      const expectedElementText = "expectedElementText";
+
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        mockResponse(true, { body: { value: expectedElementText } })
+      );
+
+      const elementText = await driver.elementText(expectedElementId);
+
+      expect(elementText).toBe(expectedElementText);
+    });
+  });
+
+  describe("when clicking an element", () => {
+    it("should make request to webdriver server", () => {});
+  });
 });
 
 describe("WebDriver", () => {
@@ -777,41 +813,6 @@ describe("WebDriver", () => {
 
       describe("elements", () => {
         const expectedElementId = "expectedElementId";
-
-        describe("element text", () => {
-          const expectedText = "expectedText";
-
-          beforeEach(async () => {
-            response = mockResponse(true, {
-              body: {
-                value: { ELEMENT: expectedElementId },
-              },
-            });
-
-            (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-              response
-            );
-
-            const response2 = mockResponse(true, {
-              body: { value: expectedText },
-            });
-
-            (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-              response2
-            );
-          });
-
-          it("should make request to webdriver", async () => {
-            await driver.elementText(expectedElementId);
-
-            expect(fetch).toBeCalledWith(
-              "remoteUrl/session/expectedSessionId/element/expectedElementId/text",
-              {
-                method: "GET",
-              }
-            );
-          });
-        });
 
         describe("click element", () => {
           it("should make request to webdriver", async () => {
