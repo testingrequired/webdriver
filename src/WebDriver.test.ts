@@ -364,17 +364,98 @@ describe("WebDriver 2", () => {
   });
 
   describe("when finding an element within another element", () => {
-    it("should make request to webdriver server", () => {});
+    const expectedFromElementId = "expectedFromElementId";
+    const by = By.css(".testClass");
 
-    it("should emit find element event", () => {});
+    beforeEach(async () => {
+      await setupSession(driver, sessionId);
+      (fetch as jest.MockedFunction<typeof fetch>).mockClear();
+    });
 
-    it("should return element id when element is found", () => {});
+    it("should make request to webdriver server", async () => {
+      await driver.findElementFromElement(expectedFromElementId, by);
 
-    it("should emit find element success event when element is found", () => {});
+      expect(fetch).toBeCalledWith(
+        `remoteUrl/session/${sessionId}/element/${expectedFromElementId}/element`,
+        {
+          body: JSON.stringify(by),
+          method: "POST",
+        }
+      );
+    });
 
-    it("should emit find element fail event when element is not found", () => {});
+    it("should emit find element from element event", async () => {
+      const spy = jest.fn();
+      driver.on(Events.FindElementFromElement, spy);
 
-    it("should throw element not found error when element is not found", () => {});
+      await driver.findElementFromElement(expectedFromElementId, by);
+
+      expect(spy).toBeCalledWith(expectedFromElementId, by);
+    });
+
+    it("should return element id when element is found", async () => {
+      const expectedElementId = "expectedElementId";
+
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        mockResponse(true, {
+          body: { value: { ELEMENT: expectedElementId } },
+        })
+      );
+
+      const elementId = await driver.findElementFromElement(
+        expectedFromElementId,
+        by
+      );
+
+      expect(elementId).toBe(expectedElementId);
+    });
+
+    it("should emit find element from element success event when element is found", async () => {
+      const expectedElementId = "expectedElementId";
+
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        mockResponse(true, {
+          body: { value: { ELEMENT: expectedElementId } },
+        })
+      );
+
+      const spy = jest.fn();
+      driver.on(Events.FindElementFromElementSuccess, spy);
+
+      await driver.findElementFromElement(expectedFromElementId, by);
+
+      expect(spy).toBeCalledWith(expectedFromElementId, by, expectedElementId);
+    });
+
+    it("should emit find element from element fail event when element is not found", async () => {
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        mockResponse(true, {
+          body: {},
+        })
+      );
+
+      const spy = jest.fn();
+      driver.on(Events.FindElementFromElementFail, spy);
+
+      await driver.findElementFromElement(expectedFromElementId, by);
+
+      expect(spy).toBeCalledWith(expectedFromElementId, by);
+    });
+
+    it("should return undefined when element is not found", async () => {
+      (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
+        mockResponse(true, {
+          body: {},
+        })
+      );
+
+      const elementId = await driver.findElementFromElement(
+        expectedFromElementId,
+        by
+      );
+
+      expect(elementId).toBeUndefined();
+    });
   });
 
   // --
@@ -565,93 +646,6 @@ describe("WebDriver", () => {
 
       describe("elements", () => {
         const expectedElementId = "expectedElementId";
-
-        describe("find element from element", () => {
-          const fromElementId = "fromElementId";
-          const selector = "body";
-          const strategy = "css selector";
-          const by = new By(strategy, selector);
-          let findElementEventSpy: jest.Mock;
-          let findElementSuccessEventSpy: jest.Mock;
-          let findElementFailEventSpy: jest.Mock;
-          let elementId: string | undefined;
-
-          beforeEach(async () => {
-            findElementEventSpy = jest.fn();
-            driver.on(Events.FindElementFromElement, findElementEventSpy);
-            findElementSuccessEventSpy = jest.fn();
-            driver.on(
-              Events.FindElementFromElementSuccess,
-              findElementSuccessEventSpy
-            );
-            findElementFailEventSpy = jest.fn();
-            driver.on(
-              Events.FindElementFromElementFail,
-              findElementFailEventSpy
-            );
-          });
-
-          describe("when successful", () => {
-            beforeEach(async () => {
-              response = mockResponse(true, {
-                body: { value: { ELEMENT: expectedElementId } },
-              });
-
-              (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-                response
-              );
-
-              elementId = await driver.findElementFromElement(
-                fromElementId,
-                by
-              );
-            });
-
-            it("should make request to webdriver", async () => {
-              expect(fetch).toBeCalledWith(
-                `remoteUrl/session/expectedSessionId/element/${fromElementId}/element`,
-                {
-                  body: `{"using":"${strategy}","value":"${selector}"}`,
-                  method: "POST",
-                }
-              );
-            });
-
-            it("should return element ids", async () => {
-              expect(elementId).toBe(expectedElementId);
-            });
-
-            it("should emit findElement event", () => {
-              expect(findElementEventSpy).toBeCalledWith(fromElementId, by);
-            });
-
-            it("should emit findElement:successEvent", () => {
-              expect(findElementSuccessEventSpy).toBeCalledWith(
-                fromElementId,
-                by,
-                expectedElementId
-              );
-            });
-          });
-
-          describe("when failed", () => {
-            beforeEach(async () => {
-              response = mockResponse(true, {
-                body: {},
-              });
-
-              (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
-                response
-              );
-
-              await driver.findElementFromElement(fromElementId, by);
-            });
-
-            it("should emit findElementFromElement:fail event", () => {
-              expect(findElementFailEventSpy).toBeCalledWith(fromElementId, by);
-            });
-          });
-        });
 
         describe("find elements", () => {
           const selector = "body";
