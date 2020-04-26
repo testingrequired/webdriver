@@ -7,42 +7,42 @@ import { Events } from "./events";
 jest.mock("node-fetch");
 
 describe("WebDriver 2", () => {
+  const sessionId = "expectedSessionId";
+
   const webdriverOptions: WebdriverOptions = {
     remoteUrl: "remoteUrl",
     desiredCapabilities: {},
   };
 
+  let driver: WebDriver;
+
+  beforeEach(() => {
+    driver = new WebDriver(webdriverOptions, {});
+  });
+
   it("should call register handlers callback on initialization", () => {
     const registerHandlersSpy = jest.fn();
-    const driver = new WebDriver(webdriverOptions, {}, registerHandlersSpy);
+
+    driver = new WebDriver(webdriverOptions, {}, registerHandlersSpy);
+
     expect(registerHandlersSpy).toBeCalledWith(driver);
   });
 
   it("should not have a session id defined on initialization", () => {
-    const driver = new WebDriver(webdriverOptions, {});
     expect(driver.sessionId).toBeUndefined();
   });
 
   it("should emit session event when session is initiated", async () => {
-    const sessionId = "expectedSessionId";
-
-    const driver = new WebDriver(webdriverOptions, {});
-
     const spy = jest.fn();
     driver.on(Events.Session, spy);
 
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
+    await setupSession(driver);
 
     expect(spy).toBeCalledWith(webdriverOptions.desiredCapabilities);
   });
 
   it("should send request to webdriver server when session is initiated", async () => {
-    const driver = new WebDriver(webdriverOptions, {});
-
-    await driver.newSession();
+    await setupSession(driver);
 
     expect(fetch).toBeCalledWith(`remoteUrl/session`, {
       method: "POST",
@@ -51,34 +51,22 @@ describe("WebDriver 2", () => {
   });
 
   it("should define session id when session is created", async () => {
-    const sessionId = "expectedSessionId";
-
-    const driver = new WebDriver(webdriverOptions, {});
-
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
+    await setupSession(driver, sessionId);
 
     expect(driver.sessionId).toBe(sessionId);
   });
 
   it("should emit session success event when session is created", async () => {
-    const sessionId = "expectedSessionId";
-
-    const driver = new WebDriver(webdriverOptions, {});
-
     const spy = jest.fn();
     driver.on(Events.SessionSuccess, spy);
 
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    try {
-      await driver.newSession();
-    } catch (e) {}
+    await setupSession(driver, sessionId);
 
     expect(spy).toBeCalledWith(sessionId);
+  });
+
+  it("should make request to webdriver server when session is created", async () => {
+    await setupSession(driver);
 
     expect(fetch).toBeCalledWith(`remoteUrl/session`, {
       method: "POST",
@@ -87,12 +75,11 @@ describe("WebDriver 2", () => {
   });
 
   it("should configure timeouts when session is created", async () => {
-    const sessionId = "expectedSessionId";
     const expectedImplicitTimeout = 5000;
     const expectedScriptTimeout = 5001;
     const expectedPageLoadTimeout = 5002;
 
-    const driver = new WebDriver(webdriverOptions, {
+    driver = new WebDriver(webdriverOptions, {
       implicit: expectedImplicitTimeout,
       script: expectedScriptTimeout,
       pageLoad: expectedPageLoadTimeout,
@@ -101,10 +88,7 @@ describe("WebDriver 2", () => {
     const spy = jest.fn();
     driver.on(Events.SessionSuccess, spy);
 
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
+    await setupSession(driver);
 
     expect(driver.timeoutsConfig.implicit).toBe(expectedImplicitTimeout);
     expect(driver.timeoutsConfig.script).toBe(expectedScriptTimeout);
@@ -112,17 +96,13 @@ describe("WebDriver 2", () => {
   });
 
   it("should emit session fail event when session fails", async () => {
-    const driver = new WebDriver(webdriverOptions, {});
     const expectedBody = { message: "expectedErrorMessage" };
 
     const spy = jest.fn();
     driver.on(Events.SessionFail, spy);
 
-    const response = mockResponse(true, { body: expectedBody });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
     try {
-      await driver.newSession();
+      await setupFailedSession(driver, expectedBody);
     } catch (e) {}
 
     expect(spy).toBeCalledWith(
@@ -131,7 +111,6 @@ describe("WebDriver 2", () => {
   });
 
   it.skip("should rethrow error when session fails", async () => {
-    const driver = new WebDriver(webdriverOptions, {});
     const expectedBody = { message: "expectedErrorMessage" };
 
     (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(
@@ -144,15 +123,7 @@ describe("WebDriver 2", () => {
   });
 
   it("should send request to webdriver server when session is deleted", async () => {
-    const sessionId = "expectedSessionId";
-
-    const driver = new WebDriver(webdriverOptions, {});
-
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
-
+    await setupSession(driver, sessionId);
     (fetch as jest.MockedFunction<typeof fetch>).mockClear();
 
     await driver.deleteSession();
@@ -163,15 +134,7 @@ describe("WebDriver 2", () => {
   });
 
   it("should clear session id when session is deleted", async () => {
-    const sessionId = "expectedSessionId";
-
-    const driver = new WebDriver(webdriverOptions, {});
-
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
-
+    await setupSession(driver);
     (fetch as jest.MockedFunction<typeof fetch>).mockClear();
 
     await driver.deleteSession();
@@ -180,17 +143,10 @@ describe("WebDriver 2", () => {
   });
 
   it("should emit session end event when session is deleted", async () => {
-    const sessionId = "expectedSessionId";
-
-    const driver = new WebDriver(webdriverOptions, {});
-
     const spy = jest.fn();
     driver.on(Events.SessionEnd, spy);
 
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
+    await setupSession(driver, sessionId);
 
     await driver.deleteSession();
 
@@ -198,16 +154,9 @@ describe("WebDriver 2", () => {
   });
 
   it("should make request to webdriver server when url is called", async () => {
-    const sessionId = "expectedSessionId";
     const expectedUrl = "expectedUrl";
 
-    const driver = new WebDriver(webdriverOptions, {});
-
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
-
+    await setupSession(driver, sessionId);
     (fetch as jest.MockedFunction<typeof fetch>).mockClear();
 
     await driver.url(expectedUrl);
@@ -219,15 +168,7 @@ describe("WebDriver 2", () => {
   });
 
   it("should make request to webdriver server when source is called", async () => {
-    const sessionId = "expectedSessionId";
-
-    const driver = new WebDriver(webdriverOptions, {});
-
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
-
+    await setupSession(driver, sessionId);
     (fetch as jest.MockedFunction<typeof fetch>).mockClear();
 
     await driver.source();
@@ -238,15 +179,7 @@ describe("WebDriver 2", () => {
   });
 
   it("should make request to webdriver server when closeWindow is called", async () => {
-    const sessionId = "expectedSessionId";
-
-    const driver = new WebDriver(webdriverOptions, {});
-
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
-
+    await setupSession(driver, sessionId);
     (fetch as jest.MockedFunction<typeof fetch>).mockClear();
 
     await driver.closeWindow();
@@ -257,17 +190,10 @@ describe("WebDriver 2", () => {
   });
 
   it("should make request to webdriver server when sendKeysElement is called", async () => {
-    const sessionId = "expectedSessionId";
     const expectedElementId = "expectedElementId";
     const expectedText = "expectedText";
 
-    const driver = new WebDriver(webdriverOptions, {});
-
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
-
+    await setupSession(driver, sessionId);
     (fetch as jest.MockedFunction<typeof fetch>).mockClear();
 
     await driver.sendKeysElement(expectedElementId, expectedText);
@@ -285,16 +211,9 @@ describe("WebDriver 2", () => {
   });
 
   it("should make request to webdriver server when executeScript is called", async () => {
-    const sessionId = "expectedSessionId";
     const expectedScript = "expectedScript";
 
-    const driver = new WebDriver(webdriverOptions, {});
-
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
-
+    await setupSession(driver, sessionId);
     (fetch as jest.MockedFunction<typeof fetch>).mockClear();
 
     await driver.executeScript(expectedScript);
@@ -312,18 +231,11 @@ describe("WebDriver 2", () => {
   });
 
   it("should make request to webdriver server when executeFunction is called", async () => {
-    const sessionId = "expectedSessionId";
     const expectedScript = function () {
       return true;
     };
 
-    const driver = new WebDriver(webdriverOptions, {});
-
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
-
+    await setupSession(driver, sessionId);
     (fetch as jest.MockedFunction<typeof fetch>).mockClear();
 
     await driver.executeFunction(expectedScript);
@@ -342,15 +254,7 @@ describe("WebDriver 2", () => {
   });
 
   it("should make request to webdriver server when setTimeouts is called", async () => {
-    const sessionId = "expectedSessionId";
-
-    const driver = new WebDriver(webdriverOptions, {});
-
-    const response = mockResponse(true, { body: { sessionId } });
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
-
-    await driver.newSession();
-
+    await setupSession(driver, sessionId);
     (fetch as jest.MockedFunction<typeof fetch>).mockClear();
 
     await driver.setTimeouts({ implicit: 100 });
@@ -501,6 +405,7 @@ describe("WebDriver", () => {
   describe("session", () => {
     describe("when created", () => {
       const sessionId = "expectedSessionId";
+
       let sessionStartEventSpy: jest.Mock;
 
       beforeEach(async () => {
@@ -941,4 +846,21 @@ function mockResponse(
   response.ok = ok;
 
   return response;
+}
+
+function setupSession(
+  driver: WebDriver,
+  sessionId: string = "expectedSessionId"
+) {
+  const response = mockResponse(true, { body: { sessionId } });
+  (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
+
+  return driver.newSession();
+}
+
+function setupFailedSession(driver: WebDriver, body: any) {
+  const response = mockResponse(true, { body });
+  (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response);
+
+  return driver.newSession();
 }
