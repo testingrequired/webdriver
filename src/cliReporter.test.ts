@@ -31,9 +31,7 @@ describe("cliReporter", () => {
     driver.emit(Events.Session, expectedCapabilities);
 
     expect(console.log).toBeCalledWith(
-      `Session initiated with capabilities: ${JSON.stringify(
-        expectedCapabilities
-      )}`
+      `SESSION: ${JSON.stringify(expectedCapabilities)}`
     );
   });
 
@@ -42,7 +40,7 @@ describe("cliReporter", () => {
 
     driver.emit(Events.SessionSuccess, expectedSessionId);
 
-    expect(console.log).toBeCalledWith(`SESSION: ${expectedSessionId}`);
+    expect(console.log).toBeCalledWith(`SESSION START: ${expectedSessionId}`);
   });
 
   it("should log when session end event emitted", () => {

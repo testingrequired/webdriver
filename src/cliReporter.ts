@@ -5,13 +5,11 @@ export default function cliReporter(driver: WebDriver) {
   const requestIdLength = 4;
 
   driver.on(Events.Session, (capabilities) => {
-    console.log(
-      `Session initiated with capabilities: ${JSON.stringify(capabilities)}`
-    );
+    console.log(`SESSION: ${JSON.stringify(capabilities)}`);
   });
 
   driver.on(Events.SessionSuccess, (sessionId) => {
-    console.log(`SESSION: ${sessionId}`);
+    console.log(`SESSION START: ${sessionId}`);
   });
 
   driver.on(Events.SessionEnd, (sessionId) => {
