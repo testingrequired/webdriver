@@ -15,13 +15,13 @@ export default class WebDriver extends EventEmitter {
   constructor(
     private options: WebdriverOptions,
     public timeoutsConfig: TimeoutsConfig = {},
-    registerHandlers?: (driver: WebDriver) => void
+    ...registerHandlers: Array<(driver: WebDriver) => void>
   ) {
     super();
 
-    if (registerHandlers) {
-      registerHandlers(this);
-    }
+    registerHandlers.forEach((handler) => {
+      handler.call(null, this);
+    });
   }
 
   /**

@@ -19,16 +19,16 @@ export default class Browser {
   static build(
     options: WebdriverOptions,
     timeoutsConfig?: TimeoutsConfig,
-    registerHandlers?: (driver: WebDriver) => void
+    ...registerHandlers: Array<(driver: WebDriver) => void>
   ) {
-    const driver = new WebDriver(options, timeoutsConfig, registerHandlers);
+    const driver = new WebDriver(options, timeoutsConfig, ...registerHandlers);
     return new Browser(driver);
   }
 
   static chrome(
     webdriverOptions: WebdriverOptions,
     timeoutsConfig?: TimeoutsConfig,
-    registerHandlers?: (driver: WebDriver) => void
+    ...registerHandlers: Array<(driver: WebDriver) => void>
   ) {
     return Browser.build(
       {
@@ -39,7 +39,7 @@ export default class Browser {
         },
       },
       timeoutsConfig,
-      registerHandlers
+      ...registerHandlers
     );
   }
 
