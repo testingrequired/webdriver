@@ -684,6 +684,32 @@ describe("WebDriver", () => {
       expect(spy).toBeCalledWith(expectedRequestId, command);
     });
 
+    it("should snapshot DOM if command is set to snapshot", async () => {
+      const expectedSnapshot = "expectedSnapshot";
+
+      const command = new Command(
+        expectedUrl,
+        expectedMethod,
+        expectedBody,
+        true
+      );
+
+      fetchMock.mockResolvedValueOnce(
+        mockResponse(true, { body: { value: expectedSnapshot } })
+      );
+
+      const spy = jest.fn();
+      driver.on(Events.DOMSnapshot, spy);
+
+      webdriverOptions.snapshotDOM = true;
+
+      try {
+        await driver.command(command, expectedRequestId);
+      } catch (e) {}
+
+      expect(spy).toBeCalledWith(expectedSnapshot);
+    });
+
     it("should emit command success event when command succeeds", async () => {
       const expectedResponseData = Symbol("expectedResponseData");
       const expectedResponse = mockResponse(true, {
