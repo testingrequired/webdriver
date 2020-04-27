@@ -1,5 +1,5 @@
 import assert from "assert";
-import { Browser, WebElement } from "../lib";
+import { Browser, WebElement, Events } from "../lib";
 
 const webdriverOptions = {
   remoteUrl: "http://localhost:4444/wd/hub",
@@ -23,38 +23,37 @@ browser.session(async (browser) => {
 });
 
 function registerOutputHandlers(driver) {
-  driver.on("sessionStart", (capabilities) => {
+  driver.on(Events.Session, (capabilities) => {
     console.log(
       `Session initiated with capabilities: ${JSON.stringify(capabilities)}`
     );
   });
 
-  driver.on("sessionStart:success", (sessionId) => {
-    console.log(`Session started. Session Id: ${sessionId}`);
+  driver.on(Events.SessionSuccess, (sessionId) => {
+    console.log(`SESSION: ${sessionId}`);
   });
 
-  driver.on("sessionEnd", (sessionId) => {
-    console.log(`Session ended. Session Id: ${sessionId}`);
+  driver.on(Events.SessionEnd, (sessionId) => {
+    console.log(`SESSION END: ${sessionId}`);
   });
 
-  driver.on("command", (requestId, { endpoint, method, body }) => {
-    console.log(`COMMAND (${requestId}): ${method} ${endpoint}`);
-
-    if (body) {
-      console.log(`REQ: ${JSON.stringify(body)}`);
-    }
+  driver.on(Events.Command, (requestId, { endpoint, method, body }) => {
+    console.log(
+      `COMMAND (${requestId}): ${method} ${endpoint}`,
+      body ? `REQ: ${JSON.stringify(body)}` : ""
+    );
   });
 
-  driver.on("command:success", (requestId, command, body) => {
-    console.log(`RES     (${requestId}): ${JSON.stringify(body)}`);
+  driver.on(Events.CommandSuccess, (requestId, command, body) => {
+    console.log(`DATA    (${requestId}): ${JSON.stringify(body)}`);
   });
 
-  driver.on("command:fail", (requestId, command, error) => {
-    console.log(`ERROR  (${requestId}): ${error.message}`);
+  driver.on(Events.CommandFail, (requestId, command, error) => {
+    console.log(`ERROR   (${requestId}): ${error.message}`);
   });
 
-  driver.on("command:end", () => {
-    console.log(`---`);
+  driver.on(Events.CommandEnd, (requestId) => {
+    console.log(`END     (${requestId})`);
   });
 }
 
