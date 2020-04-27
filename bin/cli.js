@@ -6,11 +6,13 @@ const webdriverOptions = {
 };
 const timeoutsConfig = { implicit: 5000 };
 
-Browser.chrome(
+const browser = Browser.chrome(
   webdriverOptions,
   timeoutsConfig,
   registerOutputHandlers
-).session(async (browser) => {
+);
+
+browser.session(async (browser) => {
   await browser.go("https://exampletest.app/user");
 
   await browser
