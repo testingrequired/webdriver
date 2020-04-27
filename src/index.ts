@@ -5,3 +5,4 @@ export { By } from "./By";
 export { default as Capabilities } from "./Capabilities";
 export { ElementNotFoundError, ElementStateError } from "./errors";
 export { Events } from "./events";
+export { default as cliReporter } from "./cliReporter";
