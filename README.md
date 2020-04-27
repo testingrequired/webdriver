@@ -6,7 +6,41 @@ A webdriver library
 
 ## Usage
 
-### Define Web Element
+### Initialize Browser
+
+Use the `Browser.chrome` method to initialize a Chrome `Browser` instance (support for other browsers coming).
+
+```javascript
+import assert from "assert";
+import { Browser, WebElement, Events } from "@testingrequired/webdriver";
+
+const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
+const timeoutsConfig = { implicit: 5000 };
+
+const browser = Browser.chrome(webdriverOptions, timeoutsConfig);
+```
+
+### Create WebDriver Session
+
+The `.session` method will create a new webdriver session, execute the callback then end the webdriver session. The `browser.go` method will navigate to the url and returns a promise. Nearly all methods are async.
+
+```javascript
+import assert from "assert";
+import { Browser, WebElement, Events } from "@testingrequired/webdriver";
+
+const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
+const timeoutsConfig = { implicit: 5000 };
+
+const browser = Browser.chrome(webdriverOptions, timeoutsConfig);
+
+browser.session(async () => {
+  await browser.go("https://exampletest.app/user");
+});
+```
+
+### Page Objects
+
+Page objects are a common pattern with webdriver automation and they are a first class concept in the form of `WebElement`. The `WebElement` class can be extended and treated like a page object. These extended classes can be passed to element query methods and results will be instances of that extended class.
 
 ```javascript
 import { WebElement } from "@testingrequired/webdriver";
@@ -32,7 +66,9 @@ class LoginForm extends WebElement {
 }
 ```
 
-### Use In Automation
+Element query methods will automatically scope results to the current `WebElement` instance versus the entire page.
+
+### Use
 
 ```javascript
 import assert from "assert";
@@ -41,9 +77,12 @@ import { Browser, WebElement, Events } from "@testingrequired/webdriver";
 const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
 const timeoutsConfig = { implicit: 5000 };
 
-Browser.chrome(webdriverOptions, timeoutsConfig).session(async (browser) => {
+const browser = Browser.chrome(webdriverOptions, timeoutsConfig);
+
+browser.session(async () => {
   await browser.go("https://exampletest.app/user");
 
+  // Query for the login form and apply the LoginForm class
   await browser
     .$("#loginForm", LoginForm)
     .then((loginForm) => loginForm.login("testUser", "password"));
@@ -69,6 +108,10 @@ $ npm i @testingrequired/webdriver@latest
 ### Extendable Web Elements
 
 All element query methods `findElement`, `$$`, etc... accept classes extending `WebElement` allowing them to be treated like page objects.
+
+### Timeline
+
+Get a timeline DOM and screenshots for easier debugging.
 
 ## Development
 
