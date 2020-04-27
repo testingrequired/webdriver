@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuid } from "uuid";
 import fetch from "node-fetch";
 import { By } from "./By";
 import WebdriverOptions from "./WebdriverOptions";
@@ -47,7 +47,7 @@ export default class WebDriver extends EventEmitter {
     command: Command,
     previousRequestId?: string
   ): Promise<T> {
-    const requestId: string = previousRequestId || uuidv4();
+    const requestId: string = previousRequestId || uuid();
     const { endpoint, method, body } = command;
     const url = `${this.options.remoteUrl}${endpoint}`;
 
