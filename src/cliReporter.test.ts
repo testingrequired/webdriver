@@ -113,4 +113,12 @@ describe("cliReporter", () => {
 
     expect(console.log).toBeCalledWith(`END     (expe)`);
   });
+
+  it("should log when dom snapshot event emitted", () => {
+    const expectedDOMSnapshot = "expectedDOMSnapshot";
+
+    driver.emit(Events.DOMSnapshot, expectedDOMSnapshot);
+
+    expect(console.log).toBeCalledWith(`SNAPSHOT: ${expectedDOMSnapshot}`);
+  });
 });

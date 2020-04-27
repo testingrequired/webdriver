@@ -44,4 +44,8 @@ export default function cliReporter(driver: WebDriver) {
 
     console.log(log);
   });
+
+  driver.on(Events.DOMSnapshot, (snapshot) => {
+    console.log(`SNAPSHOT: ${snapshot}`);
+  });
 }

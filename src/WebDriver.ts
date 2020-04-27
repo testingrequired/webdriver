@@ -53,6 +53,18 @@ export default class WebDriver extends EventEmitter {
 
     this.emit(Events.Command, requestId, command);
 
+    if (this.options.snapshotDOM && command.snapshot) {
+      const response = await fetch(
+        `${this.options.remoteUrl}/session/${this.sessionId}/source`
+      );
+
+      const data = await response.json();
+
+      const html: string = data.value;
+
+      this.emit(Events.DOMSnapshot, html);
+    }
+
     const res = await fetch(url, { method, body: JSON.stringify(body) });
 
     if (!res.ok) {
@@ -91,7 +103,8 @@ export default class WebDriver extends EventEmitter {
       new Command(
         `/session/${this.sessionId}${command.endpoint}`,
         command.method,
-        command.body
+        command.body,
+        command.snapshot
       )
     );
   }
@@ -204,7 +217,7 @@ export default class WebDriver extends EventEmitter {
     this.emit(Events.FindElement, by);
 
     const result = await this.sessionCommand<CommandResponse<ElementIdValue>>(
-      Command.post(`/element`, by)
+      Command.post(`/element`, by, true)
     );
 
     if (!result.value) {
@@ -343,6 +356,7 @@ export default class WebDriver extends EventEmitter {
 export interface WebdriverOptions {
   remoteUrl: string;
   desiredCapabilities: Capabilities;
+  snapshotDOM?: boolean;
 }
 
 export interface TimeoutsConfig {

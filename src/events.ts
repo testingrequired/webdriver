@@ -1,4 +1,5 @@
 export enum Events {
+  DOMSnapshot = "domSnapshot",
   Command = "command",
   CommandSuccess = "command:success",
   CommandFail = "command:fail",
