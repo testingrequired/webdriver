@@ -7,7 +7,7 @@ import { Browser, WebElement } from "../lib";
   };
   const timeoutsConfig = { implicit: 5000 };
 
-  await Browser.chrome(
+  Browser.chrome(
     webdriverOptions,
     timeoutsConfig,
     registerOutputHandlers

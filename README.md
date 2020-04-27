@@ -42,9 +42,7 @@ import { Browser, WebElement, Events } from "@testingrequired/webdriver";
   const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
   const timeoutsConfig = { implicit: 5000 };
 
-  const browser = Browser.chrome(webdriverOptions, timeoutsConfig);
-
-  await browser.session(async () => {
+  Browser.chrome(webdriverOptions, timeoutsConfig).session(async (browser) => {
     await browser.go("https://exampletest.app/user");
 
     await (await browser.$("#loginForm", LoginForm)).login(
