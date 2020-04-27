@@ -11,6 +11,7 @@ import { Capabilities } from ".";
  */
 export default class WebDriver extends EventEmitter {
   private _sessionId?: string;
+  private _snapshots: Map<Command, string> = new Map();
 
   constructor(
     private options: WebdriverOptions,
@@ -39,6 +40,14 @@ export default class WebDriver extends EventEmitter {
   }
 
   /**
+   * Get snapshot, if any exists, for command
+   * @param command Command to get snapshot for
+   */
+  getSnapshotFromCommand(command: Command) {
+    return this._snapshots.get(command);
+  }
+
+  /**
    * Send a command to the webdriver server
    * @param command Command object containing endpoint, method and body
    * @returns Response JSON body deserialized
@@ -61,6 +70,8 @@ export default class WebDriver extends EventEmitter {
       const data = await response.json();
 
       const snapshot: string = data.value;
+
+      this._snapshots.set(command, snapshot);
 
       this.emit(Events.DOMSnapshot, requestId, command, snapshot);
     }

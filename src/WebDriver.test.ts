@@ -684,7 +684,7 @@ describe("WebDriver", () => {
       expect(spy).toBeCalledWith(expectedRequestId, command);
     });
 
-    it("should snapshot DOM if command is set to snapshot", async () => {
+    it("should emit dom snapshot event if command is set to snapshot", async () => {
       const expectedSnapshot = "expectedSnapshot";
 
       const command = new Command(
@@ -708,6 +708,47 @@ describe("WebDriver", () => {
       } catch (e) {}
 
       expect(spy).toBeCalledWith(expectedRequestId, command, expectedSnapshot);
+    });
+
+    it("should record dom snapshot if command is set to snapshot", async () => {
+      const expectedSnapshot = "expectedSnapshot";
+
+      const command = new Command(
+        expectedUrl,
+        expectedMethod,
+        expectedBody,
+        true
+      );
+
+      fetchMock.mockResolvedValueOnce(
+        mockResponse(true, { body: { value: expectedSnapshot } })
+      );
+
+      webdriverOptions.snapshotDOM = true;
+
+      try {
+        await driver.command(command, expectedRequestId);
+      } catch (e) {}
+
+      expect(driver.getSnapshotFromCommand(command)).toBe(expectedSnapshot);
+    });
+
+    it("should not record dom snapshot if command is not set to snapshot", async () => {
+      const expectedSnapshot = "expectedSnapshot";
+
+      const command = new Command(expectedUrl, expectedMethod, expectedBody);
+
+      fetchMock.mockResolvedValueOnce(
+        mockResponse(true, { body: { value: expectedSnapshot } })
+      );
+
+      webdriverOptions.snapshotDOM = true;
+
+      try {
+        await driver.command(command, expectedRequestId);
+      } catch (e) {}
+
+      expect(driver.getSnapshotFromCommand(command)).toBeUndefined();
     });
 
     it("should emit command success event when command succeeds", async () => {
