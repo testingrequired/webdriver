@@ -78,13 +78,13 @@ class LoginForm extends WebElement {
 }
 ```
 
-### Goals
+## Goals
 
-#### ES6 Promises
+### ES6 Promises
 
 Use standard promises for asynchronous actions.
 
-#### First Class Page Objects
+### First Class Page Objects
 
 All element query methods `findElement`, `$$`, etc... accept classes extending `WebElement` allowing them to be treated like page objects.
 
