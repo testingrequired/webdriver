@@ -11,7 +11,8 @@ import { Capabilities } from ".";
  */
 export default class WebDriver extends EventEmitter {
   private _sessionId?: string;
-  private _snapshots: Map<Command, string> = new Map();
+  private _domSnapshots: Map<Command, string> = new Map();
+  private _visualSnapshots: Map<Command, string> = new Map();
 
   constructor(
     private options: WebdriverOptions,
@@ -40,11 +41,19 @@ export default class WebDriver extends EventEmitter {
   }
 
   /**
-   * Get snapshot, if any exists, for command
+   * Get DOM snapshot, if any exists, for command
    * @param command Command to get snapshot for
    */
-  getSnapshotFromCommand(command: Command) {
-    return this._snapshots.get(command);
+  getDOMSnapshotFromCommand(command: Command) {
+    return this._domSnapshots.get(command);
+  }
+
+  /**
+   * Get visual snapshot, if any exists, for command
+   * @param command Command to get snapshot for
+   */
+  getVisualSnapshotFromCommand(command: Command) {
+    return this._visualSnapshots.get(command);
   }
 
   /**
@@ -71,9 +80,23 @@ export default class WebDriver extends EventEmitter {
 
       const snapshot: string = data.value;
 
-      this._snapshots.set(command, snapshot);
+      this._domSnapshots.set(command, snapshot);
 
       this.emit(Events.DOMSnapshot, requestId, command, snapshot);
+    }
+
+    if (this.options.snapshotVisual && command.snapshot) {
+      const response = await fetch(
+        `${this.options.remoteUrl}/session/${this.sessionId}/screenshot`
+      );
+
+      const data = await response.json();
+
+      const snapshot: string = data.value;
+
+      this._visualSnapshots.set(command, snapshot);
+
+      this.emit(Events.VisualSnapshot, requestId, command, snapshot);
     }
 
     const res = await fetch(url, { method, body: JSON.stringify(body) });
@@ -374,6 +397,7 @@ export interface WebdriverOptions {
   remoteUrl: string;
   desiredCapabilities: Capabilities;
   snapshotDOM?: boolean;
+  snapshotVisual?: boolean;
 }
 
 export interface TimeoutsConfig {

@@ -12,15 +12,21 @@ jest.mock("uuid");
 describe("WebDriver", () => {
   const sessionId = "expectedSessionId";
 
-  const webdriverOptions: WebdriverOptions = {
-    remoteUrl: "remoteUrl",
-    desiredCapabilities: {},
-  };
+  let webdriverOptions: WebdriverOptions;
 
   let driver: WebDriver;
 
   beforeEach(() => {
+    webdriverOptions = {
+      remoteUrl: "remoteUrl",
+      desiredCapabilities: {},
+    };
+
     driver = new WebDriver(webdriverOptions, {});
+  });
+
+  afterEach(() => {
+    fetchMock.mockClear();
   });
 
   describe("when initializing", () => {
@@ -730,7 +736,7 @@ describe("WebDriver", () => {
         await driver.command(command, expectedRequestId);
       } catch (e) {}
 
-      expect(driver.getSnapshotFromCommand(command)).toBe(expectedSnapshot);
+      expect(driver.getDOMSnapshotFromCommand(command)).toBe(expectedSnapshot);
     });
 
     it("should not record dom snapshot if command is not set to snapshot", async () => {
@@ -748,7 +754,50 @@ describe("WebDriver", () => {
         await driver.command(command, expectedRequestId);
       } catch (e) {}
 
-      expect(driver.getSnapshotFromCommand(command)).toBeUndefined();
+      expect(driver.getDOMSnapshotFromCommand(command)).toBeUndefined();
+    });
+
+    it("should record visual snapshot if command is set to snapshot", async () => {
+      const expectedSnapshot = "expectedSnapshot";
+
+      const command = new Command(
+        expectedUrl,
+        expectedMethod,
+        expectedBody,
+        true
+      );
+
+      fetchMock.mockResolvedValueOnce(
+        mockResponse(true, { body: { value: expectedSnapshot } })
+      );
+
+      webdriverOptions.snapshotVisual = true;
+
+      try {
+        await driver.command(command, expectedRequestId);
+      } catch (e) {}
+
+      expect(driver.getVisualSnapshotFromCommand(command)).toBe(
+        expectedSnapshot
+      );
+    });
+
+    it("should not record visual snapshot if command is not set to snapshot", async () => {
+      const expectedSnapshot = "expectedSnapshot";
+
+      const command = new Command(expectedUrl, expectedMethod, expectedBody);
+
+      fetchMock.mockResolvedValueOnce(
+        mockResponse(true, { body: { value: expectedSnapshot } })
+      );
+
+      webdriverOptions.snapshotVisual = true;
+
+      try {
+        await driver.command(command, expectedRequestId);
+      } catch (e) {}
+
+      expect(driver.getVisualSnapshotFromCommand(command)).toBeUndefined();
     });
 
     it("should emit command success event when command succeeds", async () => {

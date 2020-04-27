@@ -47,6 +47,11 @@ export default function cliReporter(driver: WebDriver) {
 
   driver.on(Events.DOMSnapshot, (requestId) => {
     const requestIdHash = requestId.substring(0, requestIdLength);
-    console.log(`SNAPSHOT (${requestIdHash})`);
+    console.log(`SNAPSHOT (${requestIdHash}): DOM`);
+  });
+
+  driver.on(Events.VisualSnapshot, (requestId) => {
+    const requestIdHash = requestId.substring(0, requestIdLength);
+    console.log(`SNAPSHOT (${requestIdHash}): Visual`);
   });
 }
