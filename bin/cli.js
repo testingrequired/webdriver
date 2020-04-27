@@ -1,28 +1,24 @@
 import assert from "assert";
 import { Browser, WebElement } from "../lib";
 
-(async () => {
-  const webdriverOptions = {
-    remoteUrl: "http://localhost:4444/wd/hub",
-  };
-  const timeoutsConfig = { implicit: 5000 };
+const webdriverOptions = {
+  remoteUrl: "http://localhost:4444/wd/hub",
+};
+const timeoutsConfig = { implicit: 5000 };
 
-  Browser.chrome(
-    webdriverOptions,
-    timeoutsConfig,
-    registerOutputHandlers
-  ).session(async (browser) => {
-    await browser.go("https://exampletest.app/user");
+Browser.chrome(
+  webdriverOptions,
+  timeoutsConfig,
+  registerOutputHandlers
+).session(async (browser) => {
+  await browser.go("https://exampletest.app/user");
 
-    const loginForm = await browser.$("#loginForm", LoginForm);
+  await browser
+    .$("#loginForm", LoginForm)
+    .then((loginForm) => loginForm.login("testUser", "password"));
 
-    await loginForm.fillAndSubmit("testUser", "password");
-
-    const h3 = await browser.$("h3");
-
-    assert.strictEqual(await h3.text(), "Timeline");
-  });
-})();
+  assert.strictEqual(await browser.$("h3").then((h3) => h3.text()), "Timeline");
+});
 
 function registerOutputHandlers(driver) {
   driver.on("sessionStart", (capabilities) => {
@@ -73,9 +69,9 @@ class LoginForm extends WebElement {
     return this.$("#loginButton");
   }
 
-  async fillAndSubmit(username, password) {
-    await (await this.username).sendKeys(username);
-    await (await this.password).sendKeys(password);
-    await (await this.loginButton).click();
+  async login(username, password) {
+    await this.username.then(($) => $.sendKeys(username));
+    await this.password.then(($) => $.sendKeys(password));
+    await this.loginButton.then(($) => $.click());
   }
 }

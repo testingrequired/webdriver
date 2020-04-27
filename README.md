@@ -25,9 +25,9 @@ class LoginForm extends WebElement {
   }
 
   async login(username, password) {
-    await (await this.username).sendKeys(username);
-    await (await this.password).sendKeys(password);
-    await (await this.loginButton).click();
+    await this.username.then(($) => $.sendKeys(username));
+    await this.password.then(($) => $.sendKeys(password));
+    await this.loginButton.then(($) => $.click());
   }
 }
 ```
@@ -38,21 +38,18 @@ class LoginForm extends WebElement {
 import assert from "assert";
 import { Browser, WebElement, Events } from "@testingrequired/webdriver";
 
-(async () => {
-  const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
-  const timeoutsConfig = { implicit: 5000 };
+const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
+const timeoutsConfig = { implicit: 5000 };
 
-  Browser.chrome(webdriverOptions, timeoutsConfig).session(async (browser) => {
-    await browser.go("https://exampletest.app/user");
+Browser.chrome(webdriverOptions, timeoutsConfig).session(async (browser) => {
+  await browser.go("https://exampletest.app/user");
 
-    await (await browser.$("#loginForm", LoginForm)).login(
-      "testUser",
-      "password"
-    );
+  await browser
+    .$("#loginForm", LoginForm)
+    .then((loginForm) => loginForm.login("testUser", "password"));
 
-    assert.strictEqual(await (await browser.$("h3")).text(), "Timeline");
-  });
-})();
+  assert.strictEqual(await browser.$("h3").then((h3) => h3.text()), "Timeline");
+});
 ```
 
 ## Note
