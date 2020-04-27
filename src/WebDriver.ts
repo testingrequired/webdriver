@@ -245,7 +245,7 @@ export default class WebDriver extends EventEmitter {
     this.emit(Events.FindElementFromElement, fromElementId, by);
 
     const result = await this.sessionCommand<CommandResponse<ElementIdValue>>(
-      Command.post(`/element/${fromElementId}/element`, by)
+      Command.post(`/element/${fromElementId}/element`, by, true)
     );
 
     if (!result.value) {
@@ -275,7 +275,7 @@ export default class WebDriver extends EventEmitter {
 
     const result = await this.sessionCommand<
       CommandResponse<Array<ElementIdValue>>
-    >(Command.post(`/elements`, by));
+    >(Command.post(`/elements`, by, true));
 
     if (!result.value) {
       this.emit(Events.FindElementsFail, by);
@@ -303,7 +303,7 @@ export default class WebDriver extends EventEmitter {
 
     const result = await this.sessionCommand<
       CommandResponse<Array<ElementIdValue>>
-    >(Command.post(`/element/${fromElementId}/elements`, by));
+    >(Command.post(`/element/${fromElementId}/elements`, by, true));
 
     if (!result.value) {
       this.emit(Events.FindElementsFromElementFail, fromElementId, by);
@@ -329,7 +329,7 @@ export default class WebDriver extends EventEmitter {
    */
   async elementText(elementId: string) {
     const result = await this.sessionCommand<CommandResponse<string>>(
-      Command.get(`/element/${elementId}/text`)
+      Command.get(`/element/${elementId}/text`, undefined, true)
     );
 
     return result.value;
@@ -340,15 +340,21 @@ export default class WebDriver extends EventEmitter {
    * @param elementId Target element id
    */
   clickElement(elementId: string) {
-    return this.sessionCommand(Command.post(`/element/${elementId}/click`));
+    return this.sessionCommand(
+      Command.post(`/element/${elementId}/click`, undefined, true)
+    );
   }
 
   sendKeysElement(elementId: string, text: string) {
     return this.sessionCommand(
-      Command.post(`/element/${elementId}/value`, {
-        text,
-        value: text.split(""),
-      })
+      Command.post(
+        `/element/${elementId}/value`,
+        {
+          text,
+          value: text.split(""),
+        },
+        true
+      )
     );
   }
 }
