@@ -11,7 +11,6 @@ import { Capabilities } from ".";
  */
 export default class WebDriver extends EventEmitter {
   private _sessionId?: string;
-  private _snapshots: Array<string> = [];
 
   constructor(
     private options: WebdriverOptions,
@@ -62,8 +61,6 @@ export default class WebDriver extends EventEmitter {
       const data = await response.json();
 
       const snapshot: string = data.value;
-
-      this._snapshots.push(snapshot);
 
       this.emit(Events.DOMSnapshot, requestId, command, snapshot);
     }
