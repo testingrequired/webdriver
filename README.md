@@ -4,58 +4,12 @@
 
 A webdriver library
 
-## Note
-
-This is not a production ready project yet. Breaking changes should be expected.
-
-## Install
-
-[![npm version](https://badge.fury.io/js/%40testingrequired%2Fwebdriver.svg)](https://badge.fury.io/js/%40testingrequired%2Fwebdriver)
-
-```bash
-$ npm i @testingrequired/webdriver@latest
-```
-
 ## Usage
 
+### Define Web Element
+
 ```javascript
-import assert from "assert";
-import { Browser, WebElement, Events } from "@testingrequired/webdriver";
-
-(async () => {
-  const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
-  const timeoutsConfig = { implicit: 5000 };
-
-  const browser = Browser.chrome(webdriverOptions, timeoutsConfig);
-
-  await browser.session(async () => {
-    await browser.go("https://exampletest.app/user");
-
-    await (await browser.$("#loginForm", LoginForm)).login(
-      "testUser",
-      "password"
-    );
-
-    assert.strictEqual(await (await browser.$("h3")).text(), "Timeline");
-  });
-
-  // Or manually manage webdriver sessions
-
-  try {
-    await browser.driver.newSession();
-
-    await browser.go("https://exampletest.app/user");
-
-    await (await browser.$("#loginForm", LoginForm)).login(
-      "testUser",
-      "password"
-    );
-
-    assert.strictEqual(await (await browser.$("h3")).text(), "Timeline");
-  } finally {
-    await browser.driver.deleteSession();
-  }
-})();
+import { WebElement } from "@testingrequired/webdriver";
 
 class LoginForm extends WebElement {
   get username() {
@@ -78,13 +32,46 @@ class LoginForm extends WebElement {
 }
 ```
 
+### Use In Automation
+
+```javascript
+import assert from "assert";
+import { Browser, WebElement, Events } from "@testingrequired/webdriver";
+
+(async () => {
+  const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
+  const timeoutsConfig = { implicit: 5000 };
+
+  const browser = Browser.chrome(webdriverOptions, timeoutsConfig);
+
+  await browser.session(async () => {
+    await browser.go("https://exampletest.app/user");
+
+    await (await browser.$("#loginForm", LoginForm)).login(
+      "testUser",
+      "password"
+    );
+
+    assert.strictEqual(await (await browser.$("h3")).text(), "Timeline");
+  });
+})();
+```
+
+## Note
+
+This is not a production ready project yet. Breaking changes should be expected.
+
+## Install
+
+[![npm version](https://badge.fury.io/js/%40testingrequired%2Fwebdriver.svg)](https://badge.fury.io/js/%40testingrequired%2Fwebdriver)
+
+```bash
+$ npm i @testingrequired/webdriver@latest
+```
+
 ## Goals
 
-### ES6 Promises
-
-Use standard promises for asynchronous actions.
-
-### First Class Page Objects
+### Extendable Web Elements
 
 All element query methods `findElement`, `$$`, etc... accept classes extending `WebElement` allowing them to be treated like page objects.
 
