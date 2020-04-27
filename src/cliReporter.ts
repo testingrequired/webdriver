@@ -1,0 +1,49 @@
+import WebDriver from "./WebDriver";
+import { Events } from "./events";
+
+export default function cliReporter(driver: WebDriver) {
+  const requestIdLength = 4;
+
+  driver.on(Events.Session, (capabilities) => {
+    console.log(
+      `Session initiated with capabilities: ${JSON.stringify(capabilities)}`
+    );
+  });
+
+  driver.on(Events.SessionSuccess, (sessionId) => {
+    console.log(`SESSION: ${sessionId}`);
+  });
+
+  driver.on(Events.SessionEnd, (sessionId) => {
+    console.log(`SESSION END: ${sessionId}`);
+  });
+
+  driver.on(Events.Command, (requestId, { endpoint, method, body }) => {
+    const requestIdHash = requestId.substring(0, requestIdLength);
+    const log = `COMMAND (${requestIdHash}): ${method} ${endpoint}`;
+    const logBody = body ? `REQ: ${JSON.stringify(body)}` : "";
+
+    console.log(log, logBody);
+  });
+
+  driver.on(Events.CommandSuccess, (requestId, command, body) => {
+    const requestIdHash = requestId.substring(0, requestIdLength);
+    const log = `DATA    (${requestIdHash}): ${JSON.stringify(body)}`;
+
+    console.log(log);
+  });
+
+  driver.on(Events.CommandFail, (requestId, command, error) => {
+    const requestIdHash = requestId.substring(0, requestIdLength);
+    const log = `ERROR   (${requestIdHash}): ${error.message}`;
+
+    console.log(log);
+  });
+
+  driver.on(Events.CommandEnd, (requestId) => {
+    const requestIdHash = requestId.substring(0, requestIdLength);
+    const log = `END     (${requestIdHash})`;
+
+    console.log(log);
+  });
+}
