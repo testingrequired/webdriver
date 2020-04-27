@@ -91,6 +91,81 @@ browser.session(async () => {
 });
 ```
 
+### Output
+
+```javascript
+import assert from "assert";
+import {
+  Browser,
+  WebElement,
+  Events,
+  cliReporter, // Import the cliReporter
+} from "@testingrequired/webdriver";
+
+const webdriverOptions = { remoteUrl: "http://localhost:4444/wd/hub" };
+const timeoutsConfig = { implicit: 5000 };
+
+// Register the cliReporter
+const browser = Browser.chrome(webdriverOptions, timeoutsConfig, cliReporter);
+
+browser.session(async () => {
+  await browser.go("https://exampletest.app/user");
+
+  await browser
+    .$("#loginForm", LoginForm)
+    .then((loginForm) => loginForm.login("testUser", "password"));
+
+  assert.strictEqual(await browser.$("h3").then((h3) => h3.text()), "Timeline");
+});
+```
+
+#### Example Output
+
+```bash
+Session initiated with capabilities: {"browserName":"chrome"}
+COMMAND (3543): POST /session REQ: {"desiredCapabilities":{"browserName":"chrome"}}
+DATA    (3543): {"status":0,"sessionId":"76336ae84fc897fb7abd5272b23fea14","value":{"acceptInsecureCerts":false,"acceptSslCerts":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"browserName":"chrome","chrome":{"chromedriverVersion":"2.43.600210 (68dcf5eebde37173d4027fa8635e332711d2874a)","userDataDir":"..."},"cssSelectorsEnabled":true,"databaseEnabled":false,"goog:chromeOptions":{"debuggerAddress":"localhost:60726"},"handlesAlerts":true,"hasTouchScreen":false,"javascriptEnabled":true,"locationContextEnabled":true,"mobileEmulationEnabled":false,"nativeEvents":true,"networkConnectionEnabled":false,"pageLoadStrategy":"normal","platform":"Windows NT","rotatable":false,"setWindowRect":true,"takesHeapSnapshot":true,"takesScreenshot":true,"unexpectedAlertBehaviour":"","version":"81.0.4044.122","webStorageEnabled":true,"webdriver.remote.sessionid":"76336ae84fc897fb7abd5272b23fea14"}}
+END     (3543)
+SESSION: 76336ae84fc897fb7abd5272b23fea14
+COMMAND (f5a3): POST /session/76336ae84fc897fb7abd5272b23fea14/timeouts REQ: {"implicit":5000}
+DATA    (f5a3): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":null}
+END     (f5a3)
+COMMAND (f45f): POST /session/76336ae84fc897fb7abd5272b23fea14/url REQ: {"url":"https://exampletest.app/user"}
+DATA    (f45f): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":null}
+END     (f45f)
+COMMAND (e05e): POST /session/76336ae84fc897fb7abd5272b23fea14/element REQ: {"using":"css selector","value":"#loginForm"}
+DATA    (e05e): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":{"ELEMENT":"0.7279714935599724-1"}}
+END     (e05e)
+COMMAND (78c2): POST /session/76336ae84fc897fb7abd5272b23fea14/element/0.7279714935599724-1/element REQ: {"using":"css selector","value":"#username"}
+DATA    (78c2): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":{"ELEMENT":"0.7279714935599724-2"}}
+END     (78c2)
+COMMAND (eeaa): POST /session/76336ae84fc897fb7abd5272b23fea14/element/0.7279714935599724-2/value REQ: {"text":"testUser","value":["t","e","s","t","U","s","e","r"]}
+DATA    (eeaa): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":null}
+END     (eeaa)
+COMMAND (494c): POST /session/76336ae84fc897fb7abd5272b23fea14/element/0.7279714935599724-1/element REQ: {"using":"css selector","value":"#password"}
+DATA    (494c): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":{"ELEMENT":"0.7279714935599724-3"}}
+END     (494c)
+COMMAND (72f3): POST /session/76336ae84fc897fb7abd5272b23fea14/element/0.7279714935599724-3/value REQ: {"text":"password","value":["p","a","s","s","w","o","r","d"]}
+DATA    (72f3): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":null}
+END     (72f3)
+COMMAND (2e17): POST /session/76336ae84fc897fb7abd5272b23fea14/element/0.7279714935599724-1/element REQ: {"using":"css selector","value":"#loginButton"}
+DATA    (2e17): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":{"ELEMENT":"0.7279714935599724-4"}}
+END     (2e17)
+COMMAND (83a2): POST /session/76336ae84fc897fb7abd5272b23fea14/element/0.7279714935599724-4/click
+DATA    (83a2): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":null}
+END     (83a2)
+COMMAND (0cc0): POST /session/76336ae84fc897fb7abd5272b23fea14/element REQ: {"using":"css selector","value":"h3"}
+DATA    (0cc0): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":{"ELEMENT":"0.7279714935599724-5"}}
+END     (0cc0)
+COMMAND (26ce): GET /session/76336ae84fc897fb7abd5272b23fea14/element/0.7279714935599724-5/text
+DATA    (26ce): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":"Timeline"}
+END     (26ce)
+COMMAND (62ef): DELETE /session/76336ae84fc897fb7abd5272b23fea14
+DATA    (62ef): {"sessionId":"76336ae84fc897fb7abd5272b23fea14","status":0,"value":null}
+END     (62ef)
+SESSION END: 76336ae84fc897fb7abd5272b23fea14
+```
+
 ## Note
 
 This is not a production ready project yet. Breaking changes should be expected.
