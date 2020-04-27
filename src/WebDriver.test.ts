@@ -707,7 +707,7 @@ describe("WebDriver", () => {
         await driver.command(command, expectedRequestId);
       } catch (e) {}
 
-      expect(spy).toBeCalledWith(expectedSnapshot);
+      expect(spy).toBeCalledWith(expectedRequestId, command, expectedSnapshot);
     });
 
     it("should emit command success event when command succeeds", async () => {

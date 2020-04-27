@@ -60,8 +60,8 @@ describe("cliReporter", () => {
     driver.emit(Events.Command, expectedRequestId, expectedCommand);
 
     expect(console.log).toBeCalledWith(
-      `COMMAND (expe): ${expectedCommand.method} ${expectedCommand.endpoint}`,
-      `REQ: ${JSON.stringify(expectedBody)}`
+      `COMMAND  (expe): ${expectedCommand.method} ${expectedCommand.endpoint}`,
+      `${JSON.stringify(expectedBody)}`
     );
   });
 
@@ -79,7 +79,7 @@ describe("cliReporter", () => {
     );
 
     expect(console.log).toBeCalledWith(
-      `DATA    (expe): ${JSON.stringify(expectedBody)}`
+      `DATA     (expe): ${JSON.stringify(expectedBody)}`
     );
   });
 
@@ -98,7 +98,7 @@ describe("cliReporter", () => {
     );
 
     expect(console.log).toBeCalledWith(
-      `ERROR   (expe): ${expectedErrorMessage}`
+      `ERROR    (expe): ${expectedErrorMessage}`
     );
   });
 
@@ -111,7 +111,7 @@ describe("cliReporter", () => {
 
     driver.emit(Events.CommandEnd, expectedRequestId);
 
-    expect(console.log).toBeCalledWith(`END     (expe)`);
+    expect(console.log).toBeCalledWith(`END      (expe)`);
   });
 
   it("should log when dom snapshot event emitted", () => {
@@ -119,6 +119,6 @@ describe("cliReporter", () => {
 
     driver.emit(Events.DOMSnapshot, expectedDOMSnapshot);
 
-    expect(console.log).toBeCalledWith(`SNAPSHOT: ${expectedDOMSnapshot}`);
+    expect(console.log).toBeCalledWith(`SNAPSHOT (expe)`);
   });
 });
