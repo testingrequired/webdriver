@@ -1,7 +1,6 @@
-import WebDriver from "./WebDriver";
+import WebDriver, { WebdriverOptions } from "./WebDriver";
 import { By } from "./By";
 import fetch, { Response } from "node-fetch";
-import WebdriverOptions from "./WebdriverOptions";
 import { Events } from "./events";
 import { Command } from "./Command";
 

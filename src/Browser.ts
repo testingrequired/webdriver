@@ -1,5 +1,4 @@
-import WebDriver, { TimeoutsConfig } from "./WebDriver";
-import WebdriverOptions from "./WebdriverOptions";
+import WebDriver, { WebdriverOptions, TimeoutsConfig } from "./WebDriver";
 import { By } from "./By";
 import WebElement from "./WebElement";
 import { ElementNotFoundError } from "./errors";

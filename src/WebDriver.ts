@@ -1,10 +1,10 @@
 import { v4 as uuid } from "uuid";
 import fetch from "node-fetch";
 import { By } from "./By";
-import WebdriverOptions from "./WebdriverOptions";
 import { EventEmitter } from "events";
 import { Events } from "./events";
 import { Command } from "./Command";
+import { Capabilities } from ".";
 
 /**
  * Interacts directly with webdriver server
@@ -337,6 +337,17 @@ export default class WebDriver extends EventEmitter {
   }
 }
 
+export interface WebdriverOptions {
+  remoteUrl: string;
+  desiredCapabilities: Capabilities;
+}
+
+export interface TimeoutsConfig {
+  script?: number;
+  pageLoad?: number;
+  implicit?: number;
+}
+
 interface ElementIdValue {
   ELEMENT: string;
 }
@@ -347,10 +358,4 @@ interface NewSessionResponse extends CommandResponse {
 
 interface CommandResponse<T = any> {
   value: T | null;
-}
-
-export interface TimeoutsConfig {
-  script?: number;
-  pageLoad?: number;
-  implicit?: number;
 }
