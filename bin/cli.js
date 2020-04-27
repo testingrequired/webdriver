@@ -1,6 +1,8 @@
 import assert from "assert";
 import { Browser, WebElement, Events } from "../lib";
 
+const requestIdLength = 4;
+
 const webdriverOptions = {
   remoteUrl: "http://localhost:4444/wd/hub",
 };
@@ -38,22 +40,32 @@ function registerOutputHandlers(driver) {
   });
 
   driver.on(Events.Command, (requestId, { endpoint, method, body }) => {
-    console.log(
-      `COMMAND (${requestId}): ${method} ${endpoint}`,
-      body ? `REQ: ${JSON.stringify(body)}` : ""
-    );
+    const requestIdHash = requestId.substring(0, requestIdLength);
+    const log = `COMMAND (${requestIdHash}): ${method} ${endpoint}`;
+    const logBody = body ? `REQ: ${JSON.stringify(body)}` : "";
+
+    console.log(log, logBody);
   });
 
   driver.on(Events.CommandSuccess, (requestId, command, body) => {
-    console.log(`DATA    (${requestId}): ${JSON.stringify(body)}`);
+    const requestIdHash = requestId.substring(0, requestIdLength);
+    const log = `DATA    (${requestIdHash}): ${JSON.stringify(body)}`;
+
+    console.log(log);
   });
 
   driver.on(Events.CommandFail, (requestId, command, error) => {
-    console.log(`ERROR   (${requestId}): ${error.message}`);
+    const requestIdHash = requestId.substring(0, requestIdLength);
+    const log = `ERROR   (${requestIdHash}): ${error.message}`;
+
+    console.log(log);
   });
 
   driver.on(Events.CommandEnd, (requestId) => {
-    console.log(`END     (${requestId})`);
+    const requestIdHash = requestId.substring(0, requestIdLength);
+    const log = `END     (${requestIdHash})`;
+
+    console.log(log);
   });
 }
 
